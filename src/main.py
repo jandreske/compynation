@@ -9,6 +9,10 @@ COLOR_DICT = {0: (255, 255, 255), 100: (102, 0, 51), 101: (153, 0, 76), 102: (20
 
 
 def init():
+    """
+    Initializes the UI, setting the icon, title and correct window size
+    :return: a pygame surface element used as screen for the game
+    """
     pg.init()
     logo = pg.image.load(GRAPHICS_DIRECTORY + "logo.png")
     pg.display.set_icon(logo)
@@ -18,6 +22,14 @@ def init():
 
 
 def draw(screen, level):
+    """
+    Draws the elements representing the current level state on the screen.
+    The numbers from the level.field member are translated into colors for the blocks.
+    The static block size is sued to determine recttangle size on the screen
+    :param screen: the screen to draw the level on
+    :param level: the level object containing the game state data to draw
+    :return: None
+    """
     screen.fill((0xFF, 0x80, 0x00))
     for i in range(0, FIELD_Y):
         for j in range(0, FIELD_X):
@@ -26,11 +38,14 @@ def draw(screen, level):
 
 
 def main():
+    """
+    Main entry point into the game, this function initializes everything and then executes the main loop
+    :return: None
+    """
     screen = init()
     level = Level(LEVEL_DIRECTORY + "level_01")
     draw(screen, level)
     pg.display.flip()
-
     running = True
     while running:
         for event in pg.event.get():

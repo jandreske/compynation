@@ -37,6 +37,17 @@ def draw(screen, level):
             pg.draw.rect(screen, color, pg.Rect(j * BLOCK_SIZE, i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE))
 
 
+def draw_marker(screen, marker, position):
+    position = (position[0] * BLOCK_SIZE, position[1] * BLOCK_SIZE)
+    screen.blit(marker, position)
+
+
+def get_marker():
+    marker = pg.image.load(GRAPHICS_DIRECTORY + "marker.png")
+    marker.set_colorkey((0, 0, 0))
+    return marker
+
+
 def main():
     """
     Main entry point into the game, this function initializes everything and then executes the main loop
@@ -45,12 +56,45 @@ def main():
     screen = init()
     level = Level(LEVEL_DIRECTORY + "level_01")
     draw(screen, level)
+    position = (0, 0)
+    marker = get_marker()
+    draw_marker(screen, marker, position)
     pg.display.flip()
+    clock = pg.time.Clock()
     running = True
     while running:
+        clock.tick(60)
+        newpos = position
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    running = False
+                elif event.key == pg.K_UP:
+                    newpos = (newpos[0], max(0, newpos[1] - 1))
+                elif event.key == pg.K_DOWN:
+                    newpos = (newpos[0], min(FIELD_Y - 1, newpos[1] + 1))
+                elif event.key == pg.K_LEFT:
+                    newpos = (max(0, newpos[0] - 1), newpos[1])
+                    if pg.key.get_pressed()[pg.K_SPACE]:
+                        if level.move(position, -1):
+                            break
+                elif event.key == pg.K_RIGHT:
+                    newpos = (min(FIELD_X - 1, newpos[0] + 1), newpos[1])
+                    if pg.key.get_pressed()[pg.K_SPACE]:
+                        if level.move(position, +1):
+                            break
+        position = newpos
+        draw(screen, level)
+        draw_marker(screen, marker, position)
+        pg.display.flip()
+        while not level.stable:
+            clock.tick(60)
+            level.stabilize()
+            draw(screen, level)
+            draw_marker(screen, marker, position)
+            pg.display.flip()
 
 
 if __name__ == "__main__":

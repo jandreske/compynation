@@ -4,7 +4,13 @@ FIELD_X = 14
 FIELD_Y = 10
 
 
-def has_matching_neigbour(field, position):
+def has_matching_neighbour(field, position):
+    """
+    Checks whether a given position on a playing field contains a movable block next to a matching same block
+    :param field: The field containing all blocks
+    :param position: The position to check
+    :return: True if the position has a matching neighbour, false otherwise
+    """
     x = position[0]
     y = position[1]
     # check above
@@ -16,7 +22,7 @@ def has_matching_neigbour(field, position):
     # check left
     if (x > 0) and (abs(field[y][x]) == abs(field[y][x - 1])):
         return True
-    # check above
+    # check right
     if (x < FIELD_X - 1) and (abs(field[y][x]) == abs(field[y][x + 1])):
         return True
     # no matches
@@ -44,6 +50,14 @@ class Level:
         return self._stable
 
     def move(self, position, direction):
+        """
+        Moves a block on position to the left or right, if it is movable and the target field is empty
+        :param position: coordinates of the block to be moved
+        :param direction: -1 to move left or +1 to move right
+        :return: True if the block was moved, false if not
+        """
+        if not self._stable:
+            return False
         if not ((direction == -1) or (direction == 1)):
             return False
         x = position[0]
@@ -63,6 +77,12 @@ class Level:
         return True
 
     def stabilize(self):
+        """
+        If the field is not stable (if blocks are falling or next to matching blocks) one step towards a stable
+        situations is being made. That means if blocks are falling, all falling blocks move one field down. If no
+        blocks are falling, those next to matching neighbours disappear.
+        :return: True if nothing happened and the field is now stable, false if changes happened
+        """
         if self._stable:
             return True
         falling = False
@@ -77,7 +97,7 @@ class Level:
         exploding = False
         for x in range(0, FIELD_X):
             for y in range(0, FIELD_Y):
-                if (0 < self._field[y][x] < 100) and has_matching_neigbour(self._field, (x, y)):
+                if (0 < self._field[y][x] < 100) and has_matching_neighbour(self._field, (x, y)):
                     exploding = True
                     self._field[y][x] = -1 * abs(self._field[y][x])
         self._field[self._field < 0] = 0
@@ -85,4 +105,3 @@ class Level:
             return False
         self._stable = True
         return True
-

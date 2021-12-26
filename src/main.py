@@ -24,8 +24,8 @@ def init():
 def draw(screen, level):
     """
     Draws the elements representing the current level state on the screen.
-    The numbers from the level.field member are translated into colors for the blocks.
-    The static block size is sued to determine recttangle size on the screen
+    The numbers from the field are translated into colors for the blocks.
+    The static block size is sued to determine rectangle size on the screen
     :param screen: the screen to draw the level on
     :param level: the level object containing the game state data to draw
     :return: None
@@ -38,11 +38,22 @@ def draw(screen, level):
 
 
 def draw_marker(screen, marker, position):
+    """
+    Draws the marker (showing the user which block is selected) on the field.
+    :param screen: The screen to draw on
+    :param marker: The image for the marker
+    :param position: the position on which the marker should be drawn (block coordinates)
+    :return: None
+    """
     position = (position[0] * BLOCK_SIZE, position[1] * BLOCK_SIZE)
     screen.blit(marker, position)
 
 
 def get_marker():
+    """
+    Loads the marker image and sets the background to transparent
+    :return: The loaded image containing the marker with transparent background
+    """
     marker = pg.image.load(GRAPHICS_DIRECTORY + "marker.png")
     marker.set_colorkey((0, 0, 0))
     return marker
@@ -64,7 +75,7 @@ def main():
     running = True
     while running:
         clock.tick(60)
-        newpos = position
+        new_position = position
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
@@ -72,25 +83,25 @@ def main():
                 if event.key == pg.K_ESCAPE:
                     running = False
                 elif event.key == pg.K_UP:
-                    newpos = (newpos[0], max(0, newpos[1] - 1))
+                    new_position = (new_position[0], max(0, new_position[1] - 1))
                 elif event.key == pg.K_DOWN:
-                    newpos = (newpos[0], min(FIELD_Y - 1, newpos[1] + 1))
+                    new_position = (new_position[0], min(FIELD_Y - 1, new_position[1] + 1))
                 elif event.key == pg.K_LEFT:
-                    newpos = (max(0, newpos[0] - 1), newpos[1])
+                    new_position = (max(0, new_position[0] - 1), new_position[1])
                     if pg.key.get_pressed()[pg.K_SPACE]:
                         if level.move(position, -1):
                             break
                 elif event.key == pg.K_RIGHT:
-                    newpos = (min(FIELD_X - 1, newpos[0] + 1), newpos[1])
+                    new_position = (min(FIELD_X - 1, new_position[0] + 1), new_position[1])
                     if pg.key.get_pressed()[pg.K_SPACE]:
                         if level.move(position, +1):
                             break
-        position = newpos
+        position = new_position
         draw(screen, level)
         draw_marker(screen, marker, position)
         pg.display.flip()
         while not level.stable:
-            clock.tick(60)
+            clock.tick(4)
             level.stabilize()
             draw(screen, level)
             draw_marker(screen, marker, position)

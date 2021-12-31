@@ -24,10 +24,16 @@ def test_wrong_dimensions():
 
 def test_move():
     lvl = level.Level(LEVEL_DIRECTORY + "level_01")
+    before_right = lvl.field[4][6]
+    before_left = lvl.field[4][5]
     assert not lvl.move((0, 0), -1)
     assert not lvl.move((6, 4), -2)
     assert not lvl.move((6, 4), 1)
     assert lvl.move((6, 4), -1)
+    after_right = lvl.field[4][6]
+    after_left = lvl.field[4][5]
+    assert before_right == after_left
+    assert before_left == after_right
 
 
 def test_stabilize():

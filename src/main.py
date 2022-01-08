@@ -1,11 +1,52 @@
 from level import Level, FIELD_X, FIELD_Y
 import pygame as pg
+import os
 
-LEVEL_DIRECTORY = "levels/"
-GRAPHICS_DIRECTORY = "graphics/"
+DIRNAME = os.path.abspath(os.path.dirname(__file__))
+LEVEL_DIRECTORY = os.path.join(DIRNAME, "levels")
+GRAPHICS_DIRECTORY = os.path.join(DIRNAME, "graphics")
+BUTTONS_DIRECTORY = os.path.join(GRAPHICS_DIRECTORY, "buttons")
 BLOCK_SIZE = 64
+MENU_BLOCK_WIDTH = 4
+MENU_ENTRIES = {0: "play", 1: "info", 2: "quit"}
+MENU_PICS = {}
+IMAGES = {}
 COLOR_DICT = {0: (255, 255, 255), 100: (102, 0, 51), 101: (153, 0, 76), 102: (204, 0, 102),
               1: (51, 255, 51), 2: (51, 51, 255), 3: (255, 51, 51)}
+
+
+def main():
+    """
+    Main entry point into the game, this function initializes everything and then runs the main menu loop
+    :return: None
+    """
+    screen = init()
+    clock = pg.time.Clock()
+    selected = 0
+    info = False
+    draw_menu(screen, selected, info)
+    running = True
+    while running:
+        clock.tick(60)
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    running = False
+                elif event.key == pg.K_UP:
+                    selected = (selected - 1) % len(MENU_ENTRIES)
+                elif event.key == pg.K_DOWN:
+                    selected = (selected + 1) % len(MENU_ENTRIES)
+                elif event.key == pg.K_SPACE:
+                    choice = MENU_ENTRIES[selected]
+                    if choice == "quit":
+                        running = False
+                    elif choice == "info":
+                        info = not info
+                    elif choice == "play":
+                        play_level(screen, clock)
+                draw_menu(screen, selected, info)
 
 
 def init():
@@ -14,11 +55,48 @@ def init():
     :return: a pygame surface element used as screen for the game
     """
     pg.init()
-    logo = pg.image.load(GRAPHICS_DIRECTORY + "logo.png")
-    pg.display.set_icon(logo)
+    load_images()
+    pg.display.set_icon(IMAGES["logo"])
     pg.display.set_caption("Compynation")
-    screen = pg.display.set_mode((BLOCK_SIZE * FIELD_X, BLOCK_SIZE * FIELD_Y))
+    screen = pg.display.set_mode((BLOCK_SIZE * (FIELD_X + MENU_BLOCK_WIDTH), BLOCK_SIZE * FIELD_Y))
     return screen
+
+
+def load_images():
+    """
+    Loads all images required during the game and adds references to the dictionaries IMAGES and MENU_PICS
+    :return: None
+    """
+    IMAGES["info"] = pg.image.load(os.path.join(GRAPHICS_DIRECTORY, "info.png"))
+    IMAGES["logo"] = pg.image.load(os.path.join(GRAPHICS_DIRECTORY, "logo.png"))
+    IMAGES["welcome"] = pg.image.load(os.path.join(GRAPHICS_DIRECTORY, "welcome.png"))
+    IMAGES["game_marker"] = get_game_marker()
+    IMAGES["menu_marker"] = get_menu_marker()
+    for key, value in MENU_ENTRIES.items():
+        MENU_PICS[key] = pg.image.load(os.path.join(BUTTONS_DIRECTORY, value + ".png"))
+
+
+def draw_menu(screen, selected, showinfo):
+    """
+    Draws the main menu on the screen. This includes the welcome screen or the info screen (if info is True).
+    The menu buttons are being drawn as well, including the marker showing which entry is selected.
+    :param screen: The surface to draw on
+    :param selected: index of the selected menu entry
+    :param showinfo: whether the info screen should be shown (instead of welcome screen)
+    :return: None
+    """
+    screen.fill((0xFF, 0x80, 0x00))
+    if showinfo:
+        screen.blit(IMAGES["info"], (0, 0))
+    else:
+        screen.blit(IMAGES["welcome"], (0, 0))
+    for entry in MENU_ENTRIES.keys():
+        posx = (FIELD_X + 1) * BLOCK_SIZE
+        posy = (1 + (2 * entry)) * BLOCK_SIZE
+        screen.blit(MENU_PICS[entry], (posx, posy))
+        if selected == entry:
+            screen.blit(IMAGES["menu_marker"], (posx, posy))
+    pg.display.flip()
 
 
 def draw(screen, level):
@@ -37,41 +115,49 @@ def draw(screen, level):
             pg.draw.rect(screen, color, pg.Rect(j * BLOCK_SIZE, i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE))
 
 
-def draw_marker(screen, marker, position):
+def draw_marker(screen, position):
     """
     Draws the marker (showing the user which block is selected) on the field.
     :param screen: The screen to draw on
-    :param marker: The image for the marker
     :param position: the position on which the marker should be drawn (block coordinates)
     :return: None
     """
     position = (position[0] * BLOCK_SIZE, position[1] * BLOCK_SIZE)
-    screen.blit(marker, position)
+    screen.blit(IMAGES["game_marker"], position)
 
 
-def get_marker():
+def get_game_marker():
     """
-    Loads the marker image and sets the background to transparent
+    Loads the game marker image and sets the background to transparent
     :return: The loaded image containing the marker with transparent background
     """
-    marker = pg.image.load(GRAPHICS_DIRECTORY + "marker.png")
+    marker = pg.image.load(os.path.join(GRAPHICS_DIRECTORY, "game_marker.png"))
     marker.set_colorkey((0, 0, 0))
     return marker
 
 
-def main():
+def get_menu_marker():
     """
-    Main entry point into the game, this function initializes everything and then executes the main loop
+    Loads the menu marker image and sets the background to transparent
+    :return: The loaded image containing the marker with transparent background
+    """
+    marker = pg.image.load(os.path.join(GRAPHICS_DIRECTORY, "menu_marker.png"))
+    marker.set_colorkey((0, 0, 0))
+    return marker
+
+
+def play_level(screen, clock):
+    """
+    Loads a level and then runs the loop to play the game, allowing the user to make moves.
+    :param screen: The surface to draw on
+    :param clock: The game clock used to adjust frame rates
     :return: None
     """
-    screen = init()
     level = Level(LEVEL_DIRECTORY + "level_01")
     draw(screen, level)
     position = (0, 0)
-    marker = get_marker()
-    draw_marker(screen, marker, position)
+    draw_marker(screen, position)
     pg.display.flip()
-    clock = pg.time.Clock()
     running = True
     while running:
         clock.tick(60)
@@ -98,13 +184,13 @@ def main():
                             break
         position = new_position
         draw(screen, level)
-        draw_marker(screen, marker, position)
+        draw_marker(screen, position)
         pg.display.flip()
         while not level.stable:
             clock.tick(4)
             level.stabilize()
             draw(screen, level)
-            draw_marker(screen, marker, position)
+            draw_marker(screen, position)
             pg.display.flip()
 
 

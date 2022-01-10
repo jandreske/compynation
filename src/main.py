@@ -1,7 +1,6 @@
 from level import Level, FIELD_X, FIELD_Y
 import pygame as pg
 import os
-import random
 
 # Directories for images and level data
 DIRNAME = os.path.abspath(os.path.dirname(__file__))
@@ -13,10 +12,14 @@ TILES_DIRECTORY = os.path.join(GRAPHICS_DIRECTORY, "tiles")
 BLOCK_SIZE = 64
 MENU_BLOCK_WIDTH = 4
 # Dictionaries for images, menu entries and tiles
-MENU_ENTRIES = {0: "play", 1: "info", 2: "quit"}
+MENU_ENTRIES = {0: "play", 1: "info", 2: "random", 3: "quit"}
 MENU_PICS = {}
 IMAGES = {}
 TILE_DICT = {}
+
+
+def get_level():
+    return "level_01"
 
 
 def main():
@@ -28,6 +31,7 @@ def main():
     clock = pg.time.Clock()
     selected = 0
     info = False
+    random = True
     draw_menu(screen, selected, info)
     running = True
     while running:
@@ -48,8 +52,10 @@ def main():
                         running = False
                     elif choice == "info":
                         info = not info
+                    elif choice == "random":
+                        random = not random
                     elif choice == "play":
-                        play_level(screen, clock)
+                        play_level(screen, clock, get_level(), random)
                 draw_menu(screen, selected, info)
 
 
@@ -158,15 +164,16 @@ def get_menu_marker():
     return marker
 
 
-def play_level(screen, clock):
+def play_level(screen, clock, level, random):
     """
     Loads a level and then runs the loop to play the game, allowing the user to make moves.
     :param screen: The surface to draw on
     :param clock: The game clock used to adjust frame rates
     :return: None
     """
-    level = Level(os.path.join(LEVEL_DIRECTORY, "level_05"))
-    level.randomize(1, 7, 100, 106, 100)
+    level = Level(os.path.join(LEVEL_DIRECTORY, level))
+    if random:
+        level.randomize(1, 7, 100, 106, 100)
     draw(screen, level)
     position = (0, 0)
     draw_marker(screen, position)

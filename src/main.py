@@ -1,6 +1,7 @@
 from level import Level, FIELD_X, FIELD_Y
 import pygame as pg
 import os
+import random
 
 # Directories for images and level data
 DIRNAME = os.path.abspath(os.path.dirname(__file__))
@@ -11,12 +12,10 @@ TILES_DIRECTORY = os.path.join(GRAPHICS_DIRECTORY, "tiles")
 # Game size values
 BLOCK_SIZE = 64
 MENU_BLOCK_WIDTH = 4
-# Dictionaries for images, menu entries, tiles and colors
+# Dictionaries for images, menu entries and tiles
 MENU_ENTRIES = {0: "play", 1: "info", 2: "quit"}
 MENU_PICS = {}
 IMAGES = {}
-COLOR_DICT = {0: (255, 255, 255), 100: (102, 0, 51), 101: (153, 0, 76), 102: (204, 0, 102),
-              1: (51, 255, 51), 2: (51, 51, 255), 3: (255, 51, 51)}
 TILE_DICT = {}
 
 
@@ -81,6 +80,8 @@ def load_images():
         MENU_PICS[key] = pg.image.load(os.path.join(BUTTONS_DIRECTORY, value + ".png"))
     for tile in range(100, 107):
         TILE_DICT[tile] = pg.image.load(os.path.join(TILES_DIRECTORY, str(tile) + ".gif"))
+    for tile in range(1, 8):
+        TILE_DICT[tile] = pg.image.load(os.path.join(TILES_DIRECTORY, str(tile) + ".gif"))
 
 
 def draw_menu(screen, selected, showinfo):
@@ -115,15 +116,15 @@ def draw(screen, level):
     :param level: the level object containing the game state data to draw
     :return: None
     """
-    screen.fill((0xFF, 0x80, 0x00))
+    screen.fill((0x15, 0x0D, 0x09))
     for i in range(0, FIELD_Y):
         for j in range(0, FIELD_X):
             if level.field[i][j] in range(100, 107):
                 tile = TILE_DICT[level.field[i][j]]
                 screen.blit(tile, (j * BLOCK_SIZE, i * BLOCK_SIZE))
-            else:
-                color = COLOR_DICT[level.field[i][j]]
-                pg.draw.rect(screen, color, pg.Rect(j * BLOCK_SIZE, i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE))
+            elif level.field[i][j] in range(1, 8):
+                tile = TILE_DICT[level.field[i][j]]
+                screen.blit(tile, (j * BLOCK_SIZE, i * BLOCK_SIZE))
 
 
 def draw_marker(screen, position):
@@ -164,7 +165,8 @@ def play_level(screen, clock):
     :param clock: The game clock used to adjust frame rates
     :return: None
     """
-    level = Level(os.path.join(LEVEL_DIRECTORY, "level_01"))
+    level = Level(os.path.join(LEVEL_DIRECTORY, "level_05"))
+    level.randomize(1, 7, 100, 106, 100)
     draw(screen, level)
     position = (0, 0)
     draw_marker(screen, position)
@@ -193,16 +195,17 @@ def play_level(screen, clock):
                     if pg.key.get_pressed()[pg.K_SPACE]:
                         if level.move(position, +1):
                             break
-        position = new_position
-        draw(screen, level)
-        draw_marker(screen, position)
-        pg.display.flip()
-        while not level.stable:
-            clock.tick(4)
-            level.stabilize()
+        if position != new_position:
+            position = new_position
             draw(screen, level)
             draw_marker(screen, position)
             pg.display.flip()
+            while not level.stable:
+                clock.tick(4)
+                level.stabilize()
+                draw(screen, level)
+                draw_marker(screen, position)
+                pg.display.flip()
 
 
 if __name__ == "__main__":

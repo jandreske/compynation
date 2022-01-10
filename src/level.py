@@ -1,7 +1,10 @@
+import random
+
 import numpy as np
 
 FIELD_X = 14
 FIELD_Y = 10
+DEFAULT_BACKGROUND_PERCENTAGE = 0.7
 
 
 def has_matching_neighbour(field, position):
@@ -105,3 +108,15 @@ class Level:
             return False
         self._stable = True
         return True
+
+    def randomize(self, min_move, max_move, min_back, max_back, default_back):
+        offset = random.randrange(min_move, max_move)
+        for y in range(FIELD_Y - 2, -1, -1):
+            for x in range(0, FIELD_X):
+                if self._field[y][x] in range(min_move, max_move + 1):
+                    self._field[y][x] = min_move + ((self._field[y][x] + offset) % (max_move - min_move + 1))
+                if self._field[y][x] in range(min_back, max_back + 1):
+                    tile = random.randrange(min_back, max_back + 1)
+                    if random.random() < DEFAULT_BACKGROUND_PERCENTAGE:
+                        tile = default_back
+                    self._field[y][x] = tile

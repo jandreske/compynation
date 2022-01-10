@@ -2,17 +2,22 @@ from level import Level, FIELD_X, FIELD_Y
 import pygame as pg
 import os
 
+# Directories for images and level data
 DIRNAME = os.path.abspath(os.path.dirname(__file__))
 LEVEL_DIRECTORY = os.path.join(DIRNAME, "levels")
 GRAPHICS_DIRECTORY = os.path.join(DIRNAME, "graphics")
 BUTTONS_DIRECTORY = os.path.join(GRAPHICS_DIRECTORY, "buttons")
+TILES_DIRECTORY = os.path.join(GRAPHICS_DIRECTORY, "tiles")
+# Game size values
 BLOCK_SIZE = 64
 MENU_BLOCK_WIDTH = 4
+# Dictionaries for images, menu entries, tiles and colors
 MENU_ENTRIES = {0: "play", 1: "info", 2: "quit"}
 MENU_PICS = {}
 IMAGES = {}
 COLOR_DICT = {0: (255, 255, 255), 100: (102, 0, 51), 101: (153, 0, 76), 102: (204, 0, 102),
               1: (51, 255, 51), 2: (51, 51, 255), 3: (255, 51, 51)}
+TILE_DICT = {}
 
 
 def main():
@@ -74,6 +79,8 @@ def load_images():
     IMAGES["menu_marker"] = get_menu_marker()
     for key, value in MENU_ENTRIES.items():
         MENU_PICS[key] = pg.image.load(os.path.join(BUTTONS_DIRECTORY, value + ".png"))
+    for tile in range(100, 107):
+        TILE_DICT[tile] = pg.image.load(os.path.join(TILES_DIRECTORY, str(tile) + ".gif"))
 
 
 def draw_menu(screen, selected, showinfo):
@@ -111,8 +118,12 @@ def draw(screen, level):
     screen.fill((0xFF, 0x80, 0x00))
     for i in range(0, FIELD_Y):
         for j in range(0, FIELD_X):
-            color = COLOR_DICT[level.field[i][j]]
-            pg.draw.rect(screen, color, pg.Rect(j * BLOCK_SIZE, i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE))
+            if level.field[i][j] in range(100, 107):
+                tile = TILE_DICT[level.field[i][j]]
+                screen.blit(tile, (j * BLOCK_SIZE, i * BLOCK_SIZE))
+            else:
+                color = COLOR_DICT[level.field[i][j]]
+                pg.draw.rect(screen, color, pg.Rect(j * BLOCK_SIZE, i * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE))
 
 
 def draw_marker(screen, position):
@@ -153,7 +164,7 @@ def play_level(screen, clock):
     :param clock: The game clock used to adjust frame rates
     :return: None
     """
-    level = Level(LEVEL_DIRECTORY + "level_01")
+    level = Level(os.path.join(LEVEL_DIRECTORY, "level_01"))
     draw(screen, level)
     position = (0, 0)
     draw_marker(screen, position)

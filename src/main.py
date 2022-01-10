@@ -1,3 +1,5 @@
+import numpy as np
+
 from level import Level, FIELD_X, FIELD_Y
 import pygame as pg
 import os
@@ -11,15 +13,13 @@ TILES_DIRECTORY = os.path.join(GRAPHICS_DIRECTORY, "tiles")
 # Game size values
 BLOCK_SIZE = 64
 MENU_BLOCK_WIDTH = 4
-# Dictionaries for images, menu entries and tiles
+# Dictionaries for images, menu entries, tiles and levels
 MENU_ENTRIES = {0: "play", 1: "info", 2: "random", 3: "quit"}
 MENU_PICS = {}
 IMAGES = {}
 TILE_DICT = {}
-
-
-def get_level():
-    return "level_01"
+LEVEL_PASSWORDS = {}
+LEVEL_FILES = {}
 
 
 def main():
@@ -55,7 +55,7 @@ def main():
                     elif choice == "random":
                         random = not random
                     elif choice == "play":
-                        play_level(screen, clock, get_level(), random)
+                        play_level(screen, clock, get_level(1), random)
                 draw_menu(screen, selected, info)
 
 
@@ -66,6 +66,7 @@ def init():
     """
     pg.init()
     load_images()
+    load_level_info()
     pg.display.set_icon(IMAGES["logo"])
     pg.display.set_caption("Compynation")
     screen = pg.display.set_mode((BLOCK_SIZE * (FIELD_X + MENU_BLOCK_WIDTH), BLOCK_SIZE * FIELD_Y))
@@ -88,6 +89,22 @@ def load_images():
         TILE_DICT[tile] = pg.image.load(os.path.join(TILES_DIRECTORY, str(tile) + ".gif"))
     for tile in range(1, 8):
         TILE_DICT[tile] = pg.image.load(os.path.join(TILES_DIRECTORY, str(tile) + ".gif"))
+
+
+def load_level_info():
+    with open(os.path.join(LEVEL_DIRECTORY, "list.txt")) as file:
+        for line in file.readlines():
+            line = line.strip().split(',')
+            LEVEL_PASSWORDS[line[1]] = int(line[0])
+            LEVEL_FILES[int(line[0])] = line[2]
+
+
+def get_level(index):
+    return LEVEL_FILES[index]
+
+
+def get_level_by_password(password):
+    return get_level(LEVEL_PASSWORDS[password])
 
 
 def draw_menu(screen, selected, showinfo):

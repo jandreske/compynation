@@ -54,7 +54,8 @@ class UI:
 
     def load_images(self):
         """
-        Loads all images required during the game and adds references to the dictionaries IMAGES, TILE_DICT and MENU_PICS
+        Loads all images required during the game and adds references to the dictionaries
+        IMAGES, TILE_DICT and MENU_PICS
         :return: None
         """
         self._images["info"] = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "info.png"))

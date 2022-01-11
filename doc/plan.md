@@ -11,8 +11,8 @@ This document is an attempt to outline my rough plan for how I will approach thi
 - [x] Decide and note which parts of the original game are a core part of this project,  
 which ones are optional extensions and which one will be dropped for the remake
 - [x] Create an architecture draft
-- [ ] Separate the task into building blocks
-- [ ] Prioritize the building blocks
+- [x] Separate the task into building blocks
+- [x] Prioritize the building blocks
 - [ ] Repeat for each block, in order:
     * Code it
     * Write tests
@@ -21,7 +21,7 @@ which ones are optional extensions and which one will be dropped for the remake
 - [ ] Test that the entire thing runs in the reference VM as expected
 - [ ] Submit the result
 
-### Open questions
+### Questions
 
 * Is PyGame feasible as frontend?
 * Can I automatically setup / install dependencies?

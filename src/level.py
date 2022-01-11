@@ -1,35 +1,9 @@
 import random
-
 import numpy as np
 
 FIELD_X = 14
 FIELD_Y = 10
 DEFAULT_BACKGROUND_PERCENTAGE = 0.7
-
-
-def has_matching_neighbour(field, position):
-    """
-    Checks whether a given position on a playing field contains a movable block next to a matching same block
-    :param field: The field containing all blocks
-    :param position: The position to check
-    :return: True if the position has a matching neighbour, false otherwise
-    """
-    x = position[0]
-    y = position[1]
-    # check above
-    if (y > 0) and (abs(field[y][x]) == abs(field[y - 1][x])):
-        return True
-    # check below
-    if (y < FIELD_Y - 1) and (abs(field[y][x]) == abs(field[y + 1][x])):
-        return True
-    # check left
-    if (x > 0) and (abs(field[y][x]) == abs(field[y][x - 1])):
-        return True
-    # check right
-    if (x < FIELD_X - 1) and (abs(field[y][x]) == abs(field[y][x + 1])):
-        return True
-    # no matches
-    return False
 
 
 class Level:
@@ -40,9 +14,12 @@ class Level:
         :param file: The file to load the level data from
         """
         self._field = np.genfromtxt(file)
-        self._stable = True
+        self._stable = False
         if not self.field.shape == (FIELD_Y, FIELD_X):
             raise ValueError('File must contain a level with dimensions ' + str(FIELD_X) + "," + str(FIELD_Y))
+        self._movable = np.count_nonzero((self._field < 100) & (self._field > 0))
+        if not self.stabilize():
+            raise ValueError('Field needs to be stable at start')
 
     @property
     def field(self):
@@ -51,6 +28,10 @@ class Level:
     @property
     def stable(self):
         return self._stable
+
+    @property
+    def solved(self):
+        return self._movable == 0
 
     def move(self, position, direction):
         """
@@ -103,6 +84,7 @@ class Level:
                 if (0 < self._field[y][x] < 100) and has_matching_neighbour(self._field, (x, y)):
                     exploding = True
                     self._field[y][x] = -1 * abs(self._field[y][x])
+        self._movable = self._movable - np.count_nonzero(self._field < 0)
         self._field[self._field < 0] = 0
         if exploding:
             return False
@@ -110,6 +92,16 @@ class Level:
         return True
 
     def randomize(self, min_move, max_move, min_back, max_back, default_back):
+        """
+        Shuffles the tile values, maintaining type (background or movable) and keeps movable pairs
+        This allows graphics to vary while maintaining the same game mechanics
+        :param min_move: minimum ID of the movable tiles images
+        :param max_move: maximum ID of the movable tiles images
+        :param min_back: minimum background tile ID
+        :param max_back: maximum background tile ID
+        :param default_back: ID of the main background tile (will be used for 70% of background blocks)
+        :return: None
+        """
         offset = random.randrange(min_move, max_move)
         for y in range(FIELD_Y - 2, -1, -1):
             for x in range(0, FIELD_X):
@@ -120,3 +112,28 @@ class Level:
                     if random.random() < DEFAULT_BACKGROUND_PERCENTAGE:
                         tile = default_back
                     self._field[y][x] = tile
+
+
+def has_matching_neighbour(field, position):
+    """
+    Checks whether a given position on a playing field contains a movable block next to a matching same block
+    :param field: The field containing all blocks
+    :param position: The position to check
+    :return: True if the position has a matching neighbour, false otherwise
+    """
+    x = position[0]
+    y = position[1]
+    # check above
+    if (y > 0) and (abs(field[y][x]) == abs(field[y - 1][x])):
+        return True
+    # check below
+    if (y < FIELD_Y - 1) and (abs(field[y][x]) == abs(field[y + 1][x])):
+        return True
+    # check left
+    if (x > 0) and (abs(field[y][x]) == abs(field[y][x - 1])):
+        return True
+    # check right
+    if (x < FIELD_X - 1) and (abs(field[y][x]) == abs(field[y][x + 1])):
+        return True
+    # no matches
+    return False

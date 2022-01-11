@@ -1,28 +1,25 @@
 import pytest
-import main
+import ui_manager
 
 IMAGES = ["info", "logo", "welcome", "game_marker", "menu_marker"]
 
 
 def test_load():
-    assert len(main.IMAGES) == 0
-    assert len(main.MENU_PICS) == 0
-    assert len(main.TILE_DICT) == 0
-    main.load_images()
-    assert len(main.IMAGES) == len(IMAGES)
+    ui = ui_manager.UI()
+    assert len(ui._images) == len(IMAGES)
     for img in IMAGES:
-        assert img in main.IMAGES.keys()
+        assert img in ui._images.keys()
     with pytest.raises(KeyError):
-        var = main.IMAGES["does_not_exist"]
-    assert len(main.MENU_PICS) == len(main.MENU_ENTRIES)
-    for img in main.MENU_ENTRIES.keys():
-        assert img in main.MENU_PICS.keys()
+        var = ui._images["does_not_exist"]
+    assert len(ui._menu_pics) == len(ui_manager.MENU_ENTRIES)
+    for img in ui_manager.MENU_ENTRIES.keys():
+        assert img in ui._menu_pics.keys()
     with pytest.raises(KeyError):
-        var = main.MENU_PICS[1077]
-    assert len(main.TILE_DICT) == 14
+        var = ui._menu_pics[1077]
+    assert len(ui._tile_dict) == 14
     for tile in range(100, 107):
-        assert tile in main.TILE_DICT.keys()
+        assert tile in ui._tile_dict.keys()
     for tile in range(1, 8):
-        assert tile in main.TILE_DICT.keys()
+        assert tile in ui._tile_dict.keys()
     with pytest.raises(KeyError):
-        var = main.TILE_DICT[2317]
+        var = ui._tile_dict[2317]

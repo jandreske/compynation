@@ -1,7 +1,7 @@
 class LevelInfo:
     def __init__(self, file):
         """
-        Loads the level overview from a file an fills various dictionaries to translate between ds, passwords and names
+        Loads the level overview from a file an fills various dictionaries to translate between ids, passwords and names
         :param file: the file to load the level information from
         """
         self._byPassword = {}

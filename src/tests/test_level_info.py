@@ -5,7 +5,7 @@ LEVEL_DIRECTORY = "../levels/"
 
 
 def test_load():
-    info = level_info.LevelInfo(LEVEL_DIRECTORY + "list.txt")
+    info = level_info.LevelInfo(LEVEL_DIRECTORY + "list")
     assert isinstance(info, level_info.LevelInfo)
     assert isinstance(info._byPassword, dict)
     assert isinstance(info._passwords, dict)
@@ -13,7 +13,7 @@ def test_load():
 
 
 def test_exceptions():
-    info = level_info.LevelInfo(LEVEL_DIRECTORY + "list.txt")
+    info = level_info.LevelInfo(LEVEL_DIRECTORY + "list")
     with pytest.raises(Exception):
         val = info.next
     with pytest.raises(Exception):
@@ -26,7 +26,7 @@ def test_exceptions():
 
 
 def test_sequence():
-    info = level_info.LevelInfo(LEVEL_DIRECTORY + "list.txt")
+    info = level_info.LevelInfo(LEVEL_DIRECTORY + "list")
     level = info.first
     assert level == "level_01"
     assert info.index == 1

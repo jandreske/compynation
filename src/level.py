@@ -15,6 +15,7 @@ class Level:
         """
         self._field = np.genfromtxt(file)
         self._stable = False
+        self._score = 0
         if not self.field.shape == (FIELD_Y, FIELD_X):
             raise ValueError('File must contain a level with dimensions ' + str(FIELD_X) + "," + str(FIELD_Y))
         self._movable = np.count_nonzero((self._field < 100) & (self._field > 0))
@@ -32,6 +33,10 @@ class Level:
     @property
     def solved(self):
         return self._movable == 0
+
+    @property
+    def score(self):
+        return self._score
 
     def move(self, position, direction):
         """
@@ -84,8 +89,11 @@ class Level:
                 if (0 < self._field[y][x] < 100) and has_matching_neighbour(self._field, (x, y)):
                     exploding = True
                     self._field[y][x] = -1 * abs(self._field[y][x])
-        self._movable = self._movable - np.count_nonzero(self._field < 0)
-        self._field[self._field < 0] = 0
+        blocks_removed = np.count_nonzero(self._field < 0)
+        if blocks_removed > 0:
+            self._movable = self._movable - blocks_removed
+            self._score = self._score + get_score(blocks_removed)
+            self._field[self._field < 0] = 0
         if exploding:
             return False
         self._stable = True
@@ -112,6 +120,16 @@ class Level:
                     if random.random() < DEFAULT_BACKGROUND_PERCENTAGE:
                         tile = default_back
                     self._field[y][x] = tile
+
+
+def get_score(blocks_removed):
+    if blocks_removed < 2:
+        raise ValueError("Invalid number of removed blocks: " + str(blocks_removed))
+    if blocks_removed == 2:
+        return 20
+    if blocks_removed == 3:
+        return 40
+    return blocks_removed * 15
 
 
 def has_matching_neighbour(field, position):

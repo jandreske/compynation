@@ -7,7 +7,7 @@ import directories
 BLOCK_SIZE = 64
 MENU_BLOCK_WIDTH = 4
 # Dictionary for menu entries
-MENU_ENTRIES = {0: "play", 1: "info", 2: "random", 3: "quit"}
+MENU_ENTRIES = {0: "play", 1: "info", 2: "lives", 3: "random", 4: "highscores", 5: "quit"}
 
 
 class UI:
@@ -27,6 +27,7 @@ class UI:
         self._selected = 0
         self._info = False
         self._random = True
+        self._lives = True
 
     @property
     def clock(self):
@@ -40,11 +41,18 @@ class UI:
     def selected(self):
         return MENU_ENTRIES[self._selected]
 
+    @property
+    def lives(self):
+        return self._lives
+
     def flip_info(self):
         self._info = not self._info
 
     def flip_random(self):
         self._random = not self._random
+
+    def flip_lives(self):
+        self._lives = not self._lives
 
     def menu_up(self):
         self._selected = (self._selected - 1) % len(MENU_ENTRIES)
@@ -83,7 +91,7 @@ class UI:
             self._screen.blit(self._images["welcome"], (0, 0))
         for entry in MENU_ENTRIES.keys():
             posx = (FIELD_X + 1) * BLOCK_SIZE
-            posy = (1 + (2 * entry)) * BLOCK_SIZE
+            posy = (1 + (1.5 * entry)) * BLOCK_SIZE
             self._screen.blit(self._menu_pics[entry], (posx, posy))
             if self._selected == entry:
                 self._screen.blit(self._images["menu_marker"], (posx, posy))
@@ -115,16 +123,20 @@ class UI:
         position = (position[0] * BLOCK_SIZE, position[1] * BLOCK_SIZE)
         self._screen.blit(self._images["game_marker"], position)
 
-    def show_success_screen(self, info):
+    def show_success_screen(self, info, score, total):
         """
-        Shows a screen telling the user about the successfull level completion.
+        Shows a screen telling the user about the successfull level completion and the achieved points.
         Shows which level follows next and the password to access it directly.
         Waits for user key press before returning.
+        :param total: The aggregated score so far
+        :param score: points collected during the last level
         :param info: the level info object containing index and password
         :return: True if the user pressed space to continue, False if pressed escape or exited the screen
         """
         self._screen.fill((0x15, 0x0D, 0x09))
         text = ["Yay, you made it!",
+                "Score achieved: " + str(score),
+                "Total points: " + str(total),
                 "Next Level: " + str(info.index),
                 "Password: " + info.password,
                 "Press space to continue"]
@@ -142,6 +154,77 @@ class UI:
                         return False
                     elif event.key == pg.K_SPACE:
                         return True
+
+    def show_winning_screen(self, score, bonus, total):
+        """
+        Shows a screen telling the user he completed the game, and shows the achieved points
+        :param score: points from last level
+        :param bonus: extra points for remaining lives
+        :param total: total points achieved
+        :return: None
+        """
+        self._screen.fill((0x15, 0x0D, 0x09))
+        text = ["Awesome, you completed the game!",
+                "Score achieved: " + str(score),
+                "Bonus points for remaining lives: " + str(bonus),
+                "Total points: " + str(total),
+                "Press space to continue"]
+        x = BLOCK_SIZE * 4
+        y = BLOCK_SIZE * 2
+        self.write_text(text, x, y)
+        pg.display.flip()
+        while True:
+            self._clock.tick(60)
+            for event in pg.event.get():
+                if event.type == pg.QUIT or event.type == pg.KEYDOWN:
+                    return
+
+    def show_highscores(self, highscores):
+        """
+        Shows the highscores
+        :param highscores: dictionary containing highscore entries
+        :return: None
+        """
+        self._screen.fill((0x15, 0x0D, 0x09))
+        text = ["Highscores"]
+        for score in sorted(highscores, reverse=True):
+            text.append(str(score) + " - " + highscores[score])
+        x = BLOCK_SIZE * 4
+        y = BLOCK_SIZE * 2
+        self.write_text(text, x, y)
+        pg.display.flip()
+        while True:
+            self._clock.tick(60)
+            for event in pg.event.get():
+                if event.type == pg.QUIT or event.type == pg.KEYDOWN:
+                    return
+
+    def show_failure_screen(self, lives):
+        """
+        Shows a screen informing the user a level attempt has failed
+        :param lives: number of lives the user has left
+        :return: True if the user wants to and can continue playing, False otherwise
+        """
+        self._screen.fill((0x15, 0x0D, 0x09))
+        text = ["Oh no, that did not work out.",
+                "Lives left: " + str(lives),
+                "Press space to try again."]
+        if lives < 1:
+            text[2] = "Press space to return to the menu."
+        x = BLOCK_SIZE * 4
+        y = BLOCK_SIZE * 2
+        self.write_text(text, x, y)
+        pg.display.flip()
+        while True:
+            self._clock.tick(60)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    return False
+                elif event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        return False
+                    elif event.key == pg.K_SPACE:
+                        return lives > 0
 
     def show_password_screen(self):
         """
@@ -173,6 +256,39 @@ class UI:
                     elif event.key == pg.K_RETURN:
                         return password
             text[3] = password
+            self._screen.fill((0x15, 0x0D, 0x09))
+            self.write_text(text, x, y)
+            pg.display.flip()
+
+    def get_user_name(self):
+        """
+        Shows the enter username screen. Allows for the user to type a name for the highscore list.
+        :return: The name entered by the user
+        """
+        self._screen.fill((0x15, 0x0D, 0x09))
+        name = ""
+        text = ["Enter your name for the highscore list.",
+                "Name: ",
+                name]
+        x = BLOCK_SIZE * 4
+        y = BLOCK_SIZE * 2
+        self.write_text(text, x, y)
+        pg.display.flip()
+        while True:
+            self._clock.tick(60)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    return name
+                elif event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        return name
+                    elif event.unicode.isalpha():
+                        name = name + event.unicode.upper()
+                    elif event.key == pg.K_BACKSPACE:
+                        name = name[:-1]
+                    elif event.key == pg.K_RETURN:
+                        return name
+            text[2] = name
             self._screen.fill((0x15, 0x0D, 0x09))
             self.write_text(text, x, y)
             pg.display.flip()

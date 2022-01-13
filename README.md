@@ -12,3 +12,5 @@ Module PyGame
 
 ### Adding / Modifying Levels
 
+### License
+

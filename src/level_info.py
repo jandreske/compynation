@@ -37,6 +37,10 @@ class LevelInfo:
         return self._index
 
     @property
+    def current(self):
+        return self._byIndex[self._index]
+
+    @property
     def next(self):
         """
         Gets the next level in sequence

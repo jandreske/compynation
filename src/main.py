@@ -76,9 +76,12 @@ def play_game(ui):
                 else:
                     playing = False
         else:
+            score = score + level.score
             if ui.lives:
                 lives = lives - 1
             playing = ui.show_failure_screen(lives)
+            if playing:
+                level = load_level(info.current)
     check_highscores(ui, score)
 
 

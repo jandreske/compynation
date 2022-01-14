@@ -1,11 +1,12 @@
 import math
+import random
 import time
-
 from level import Level
 from level_info import LevelInfo
 from ui_manager import *
 import directories
 STARTING_LIVES = 3
+SONGS = ["adventure.mp3", "arcade.mp3", "boss.mp3", "castle.mp3", "funny.mp3"]
 
 
 def main():
@@ -15,6 +16,7 @@ def main():
     """
     ui = UI()
     ui.draw_menu()
+    start_menu_music()
     running = True
     while running:
         ui.clock.tick(FRAMERATE)
@@ -36,6 +38,14 @@ def main():
                         ui.flip_info()
                     elif choice == "lives":
                         ui.flip_lives()
+                    elif choice == "time":
+                        ui.flip_time()
+                    elif choice == "music":
+                        ui.flip_music()
+                        if ui.music:
+                            start_menu_music()
+                        else:
+                            stop_music()
                     elif choice == "random":
                         ui.flip_random()
                     elif choice == "highscores":
@@ -45,6 +55,21 @@ def main():
                 ui.draw_menu()
 
 
+def start_menu_music():
+    pg.mixer.music.load(os.path.join(directories.MUSIC_DIRECTORY, "menu.mp3"))
+    pg.mixer.music.play(-1)
+
+
+def start_level_music():
+    song = random.choice(SONGS)
+    pg.mixer.music.load(os.path.join(directories.MUSIC_DIRECTORY, song))
+    pg.mixer.music.play(-1)
+
+
+def stop_music():
+    pg.mixer.music.stop()
+
+
 def play_game(ui):
     """
     Organizes the sequence of levels to play. Loads the level info from a file, allows user password input
@@ -52,6 +77,7 @@ def play_game(ui):
     :param ui: The ui instance managing the interface
     :return: None
     """
+    stop_music()
     info = LevelInfo(os.path.join(directories.LEVEL_DIRECTORY, "list"))
     password = ui.show_password_screen()
     info.by_password(password)
@@ -59,7 +85,11 @@ def play_game(ui):
     playing = True
     while playing:
         ui.set_game_menu(lives)
-        if play_level(ui, info):
+        if ui.music:
+            start_level_music()
+        success = play_level(ui, info)
+        stop_music()
+        if success:
             next_level = info.next
             if not next_level:
                 if ui.lives:
@@ -73,6 +103,8 @@ def play_game(ui):
             if ui.lives:
                 lives = lives - 1
             playing = ui.show_failure_screen(lives)
+    if ui.music:
+        start_menu_music()
     check_highscores(ui, info.total_score)
 
 

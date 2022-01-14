@@ -50,6 +50,7 @@ class UI:
         self._random = True
         self._lives = True
         self._time = True
+        self._music = True
 
     @property
     def clock(self):
@@ -71,6 +72,10 @@ class UI:
     def time(self):
         return self._time
 
+    @property
+    def music(self):
+        return self._music
+
     def flip_info(self):
         self._info = not self._info
 
@@ -82,6 +87,9 @@ class UI:
 
     def flip_time(self):
         self._time = not self._time
+
+    def flip_music(self):
+        self._music = not self._music
 
     def menu_up(self):
         self._selected = (self._selected - 1) % len(MENU_ENTRIES)

@@ -7,6 +7,7 @@ class LevelInfo:
         self._byPassword = {}
         self._byIndex = {}
         self._passwords = {}
+        self._times = {}
         with open(file) as f:
             self._index = 0
             for line in f.readlines():
@@ -14,6 +15,7 @@ class LevelInfo:
                 self._passwords[int(line[0])] = line[1]
                 self._byPassword[line[1]] = int(line[0])
                 self._byIndex[int(line[0])] = line[2]
+                self._times[int(line[0])] = int(line[3])
 
     @property
     def first(self):
@@ -31,6 +33,12 @@ class LevelInfo:
         if self._index == 0:
             raise Exception("Need to start a new run first")
         return self._passwords[self._index]
+
+    @property
+    def time(self):
+        if self._index == 0:
+            raise Exception("Need to start a new run first")
+        return self._times[self._index]
 
     @property
     def index(self):

@@ -99,6 +99,9 @@ class Level:
         self._stable = True
         return True
 
+    def add_score(self, points):
+        self._score = self._score + points
+
     def randomize(self, min_move, max_move, min_back, max_back, default_back):
         """
         Shuffles the tile values, maintaining type (background or movable) and keeps movable pairs

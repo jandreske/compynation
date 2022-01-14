@@ -6,6 +6,12 @@ import directories
 # Game size values
 BLOCK_SIZE = 64
 MENU_BLOCK_WIDTH = 4
+TIME_X = FIELD_X * BLOCK_SIZE + 110
+TIME_Y = 110
+SCORE_X = FIELD_X * BLOCK_SIZE + 75
+SCORE_Y = 315
+LEVEL_X = FIELD_X * BLOCK_SIZE + 110
+LEVEL_Y = 475
 # Tile image values
 MOVE_MIN_TILE = 1
 MOVE_MAX_TILE = 15
@@ -32,6 +38,8 @@ class UI:
         self._menu_pics = {}
         self._images = {}
         self._tile_dict = {}
+        self._game_menues = {}
+        self._gm = 3
         self.load_images()
         pg.display.set_icon(self._images["logo"])
         pg.display.set_caption("Compynation")
@@ -41,6 +49,7 @@ class UI:
         self._info = False
         self._random = True
         self._lives = True
+        self._time = True
 
     @property
     def clock(self):
@@ -58,6 +67,10 @@ class UI:
     def lives(self):
         return self._lives
 
+    @property
+    def time(self):
+        return self._time
+
     def flip_info(self):
         self._info = not self._info
 
@@ -67,11 +80,17 @@ class UI:
     def flip_lives(self):
         self._lives = not self._lives
 
+    def flip_time(self):
+        self._time = not self._time
+
     def menu_up(self):
         self._selected = (self._selected - 1) % len(MENU_ENTRIES)
 
     def menu_down(self):
         self._selected = (self._selected + 1) % len(MENU_ENTRIES)
+
+    def set_game_menu(self, lives):
+        self._gm = lives
 
     def load_images(self):
         """
@@ -84,6 +103,9 @@ class UI:
         self._images["welcome"] = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "welcome.png"))
         self._images["game_marker"] = get_game_marker()
         self._images["menu_marker"] = get_menu_marker()
+        self._game_menues[1] = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "game_menu_1.png"))
+        self._game_menues[2] = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "game_menu_2.png"))
+        self._game_menues[3] = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "game_menu_3.png"))
         for key, value in MENU_ENTRIES.items():
             self._menu_pics[key] = pg.image.load(os.path.join(directories.BUTTONS_DIRECTORY, value + ".png"))
         for tile in range(BACK_MIN_TILE, BACK_MAX_TILE + 1):
@@ -126,6 +148,13 @@ class UI:
                 elif level.field[i][j] in range(MOVE_MIN_TILE, MOVE_MAX_TILE + 1):
                     tile = self._tile_dict[level.field[i][j]]
                     self._screen.blit(tile, (j * BLOCK_SIZE, i * BLOCK_SIZE))
+
+    def draw_game_menu(self, level, score, time_left):
+        image = self._game_menues[self._gm]
+        self._screen.blit(image, (FIELD_X * BLOCK_SIZE, 0))
+        self.write_text([str(time_left)], TIME_X, TIME_Y)
+        self.write_text([str(level)], LEVEL_X, LEVEL_Y)
+        self.write_text([str(score)], SCORE_X, SCORE_Y)
 
     def draw_marker(self, position):
         """

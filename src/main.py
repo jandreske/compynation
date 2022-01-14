@@ -1,4 +1,6 @@
 import math
+import time
+
 from level import Level
 from level_info import LevelInfo
 from ui_manager import *
@@ -57,7 +59,11 @@ def play_game(ui):
     score = 0
     playing = True
     while playing:
-        if play_level(ui, level):
+        time_budget = 0
+        ui.set_game_menu(lives)
+        if ui.time:
+            time_budget = info.time
+        if play_level(ui, level, time_budget, info.index):
             score = score + level.score
             next_level = info.next
             if not next_level:
@@ -82,27 +88,35 @@ def play_game(ui):
     check_highscores(ui, score)
 
 
-def play_level(ui, level):
+def play_level(ui, level, time_budget, lvl_id):
     """
     Loads a level and then runs the loop to play the game, allowing the user to make moves.
+    :param time_budget: the time available to play the level
     :param ui: the ui instance used for managing the interface
     :param level: the level object containing the initial game state
     :return: True if the level was cleared, False otherwise
     """
     if ui.random:
         level.randomize(MOVE_MIN_TILE, MOVE_MAX_TILE, BACK_MIN_TILE, BACK_MAX_TILE, BACK_DEFAULT_TILE)
-    ui.draw(level)
     position = (0, 0)
+    time_left = time_budget
+    ui.draw(level)
     ui.draw_marker(position)
+    ui.draw_game_menu(lvl_id, level.score, time_left)
     pg.display.flip()
+    start = time.time()
     while True:
         ui.clock.tick(FRAMERATE)
         new_position = position
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                if ui.time:
+                    level.add_score(time_left)
                 return False
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
+                    if ui.time:
+                        level.add_score(time_left)
                     return False
                 elif event.key == pg.K_UP:
                     new_position = (new_position[0], max(0, new_position[1] - 1))
@@ -122,6 +136,7 @@ def play_level(ui, level):
             position = new_position
             ui.draw(level)
             ui.draw_marker(position)
+            ui.draw_game_menu(lvl_id, level.score, time_left)
             pg.display.flip()
             while not level.stable:
                 # way lower framerate to make movements visible
@@ -129,9 +144,19 @@ def play_level(ui, level):
                 level.stabilize()
                 ui.draw(level)
                 ui.draw_marker(position)
+                ui.draw_game_menu(lvl_id, level.score, time_left)
                 pg.display.flip()
             if level.solved:
+                if ui.time:
+                    level.add_score(time_left)
                 return True
+        new_time_left = time_budget - math.floor(time.time() - start)
+        if new_time_left < time_left:
+            time_left = new_time_left
+            ui.draw_game_menu(lvl_id, level.score, time_left)
+            pg.display.flip()
+        if ui.time and time_left < 0:
+            return False
 
 
 def check_highscores(ui, score):

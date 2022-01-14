@@ -1,11 +1,8 @@
 import math
-from level import Level, FIELD_X, FIELD_Y
-import pygame as pg
-import os
+from level import Level
 from level_info import LevelInfo
-from ui_manager import UI
+from ui_manager import *
 import directories
-
 STARTING_LIVES = 3
 
 
@@ -18,7 +15,7 @@ def main():
     ui.draw_menu()
     running = True
     while running:
-        ui.clock.tick(60)
+        ui.clock.tick(FRAMERATE)
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
@@ -93,13 +90,13 @@ def play_level(ui, level):
     :return: True if the level was cleared, False otherwise
     """
     if ui.random:
-        level.randomize(1, 7, 100, 106, 100)
+        level.randomize(MOVE_MIN_TILE, MOVE_MAX_TILE, BACK_MIN_TILE, BACK_MAX_TILE, BACK_DEFAULT_TILE)
     ui.draw(level)
     position = (0, 0)
     ui.draw_marker(position)
     pg.display.flip()
     while True:
-        ui.clock.tick(60)
+        ui.clock.tick(FRAMERATE)
         new_position = position
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -127,7 +124,8 @@ def play_level(ui, level):
             ui.draw_marker(position)
             pg.display.flip()
             while not level.stable:
-                ui.clock.tick(4)
+                # way lower framerate to make movements visible
+                ui.clock.tick(STABILIZING_FRAMERATE)
                 level.stabilize()
                 ui.draw(level)
                 ui.draw_marker(position)

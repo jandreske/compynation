@@ -6,8 +6,21 @@ import directories
 # Game size values
 BLOCK_SIZE = 64
 MENU_BLOCK_WIDTH = 4
+# Tile image values
+MOVE_MIN_TILE = 1
+MOVE_MAX_TILE = 15
+BACK_DEFAULT_TILE = 100
+BACK_MIN_TILE = 100
+BACK_MAX_TILE = 106
 # Dictionary for menu entries
 MENU_ENTRIES = {0: "play", 1: "info", 2: "lives", 3: "random", 4: "highscores", 5: "quit"}
+# User interaction values
+FRAMERATE = 60
+STABILIZING_FRAMERATE = 4
+# Colors
+BACKGROUND_COLOR = (0x15, 0x0D, 0x09)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
 
 class UI:
@@ -73,9 +86,9 @@ class UI:
         self._images["menu_marker"] = get_menu_marker()
         for key, value in MENU_ENTRIES.items():
             self._menu_pics[key] = pg.image.load(os.path.join(directories.BUTTONS_DIRECTORY, value + ".png"))
-        for tile in range(100, 107):
+        for tile in range(BACK_MIN_TILE, BACK_MAX_TILE + 1):
             self._tile_dict[tile] = pg.image.load(os.path.join(directories.TILES_DIRECTORY, str(tile) + ".gif"))
-        for tile in range(1, 8):
+        for tile in range(MOVE_MIN_TILE, MOVE_MAX_TILE + 1):
             self._tile_dict[tile] = pg.image.load(os.path.join(directories.TILES_DIRECTORY, str(tile) + ".gif"))
 
     def draw_menu(self):
@@ -84,7 +97,7 @@ class UI:
         The menu buttons are being drawn as well, including the marker showing which entry is selected.
         :return: None
         """
-        self._screen.fill((0xFF, 0x80, 0x00))
+        self._screen.fill(BACKGROUND_COLOR)
         if self._info:
             self._screen.blit(self._images["info"], (0, 0))
         else:
@@ -104,13 +117,13 @@ class UI:
         :param level: the level object containing the game state data to draw
         :return: None
         """
-        self._screen.fill((0x15, 0x0D, 0x09))
+        self._screen.fill(BACKGROUND_COLOR)
         for i in range(0, FIELD_Y):
             for j in range(0, FIELD_X):
-                if level.field[i][j] in range(100, 107):
+                if level.field[i][j] in range(BACK_MIN_TILE, BACK_MAX_TILE + 1):
                     tile = self._tile_dict[level.field[i][j]]
                     self._screen.blit(tile, (j * BLOCK_SIZE, i * BLOCK_SIZE))
-                elif level.field[i][j] in range(1, 8):
+                elif level.field[i][j] in range(MOVE_MIN_TILE, MOVE_MAX_TILE + 1):
                     tile = self._tile_dict[level.field[i][j]]
                     self._screen.blit(tile, (j * BLOCK_SIZE, i * BLOCK_SIZE))
 
@@ -133,7 +146,7 @@ class UI:
         :param info: the level info object containing index and password
         :return: True if the user pressed space to continue, False if pressed escape or exited the screen
         """
-        self._screen.fill((0x15, 0x0D, 0x09))
+        self._screen.fill(BACKGROUND_COLOR)
         text = ["Yay, you made it!",
                 "Score achieved: " + str(score),
                 "Total points: " + str(total),
@@ -145,7 +158,7 @@ class UI:
         self.write_text(text, x, y)
         pg.display.flip()
         while True:
-            self._clock.tick(60)
+            self._clock.tick(FRAMERATE)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     return False
@@ -163,7 +176,7 @@ class UI:
         :param total: total points achieved
         :return: None
         """
-        self._screen.fill((0x15, 0x0D, 0x09))
+        self._screen.fill(BACKGROUND_COLOR)
         text = ["Awesome, you completed the game!",
                 "Score achieved: " + str(score),
                 "Bonus points for remaining lives: " + str(bonus),
@@ -174,7 +187,7 @@ class UI:
         self.write_text(text, x, y)
         pg.display.flip()
         while True:
-            self._clock.tick(60)
+            self._clock.tick(FRAMERATE)
             for event in pg.event.get():
                 if event.type == pg.QUIT or event.type == pg.KEYDOWN:
                     return
@@ -185,7 +198,7 @@ class UI:
         :param highscores: dictionary containing highscore entries
         :return: None
         """
-        self._screen.fill((0x15, 0x0D, 0x09))
+        self._screen.fill(BACKGROUND_COLOR)
         text = ["Highscores"]
         for score in sorted(highscores, reverse=True):
             text.append(str(score) + " - " + highscores[score])
@@ -194,7 +207,7 @@ class UI:
         self.write_text(text, x, y)
         pg.display.flip()
         while True:
-            self._clock.tick(60)
+            self._clock.tick(FRAMERATE)
             for event in pg.event.get():
                 if event.type == pg.QUIT or event.type == pg.KEYDOWN:
                     return
@@ -205,7 +218,7 @@ class UI:
         :param lives: number of lives the user has left
         :return: True if the user wants to and can continue playing, False otherwise
         """
-        self._screen.fill((0x15, 0x0D, 0x09))
+        self._screen.fill(BACKGROUND_COLOR)
         text = ["Oh no, that did not work out.",
                 "Lives left: " + str(lives),
                 "Press space to try again."]
@@ -216,7 +229,7 @@ class UI:
         self.write_text(text, x, y)
         pg.display.flip()
         while True:
-            self._clock.tick(60)
+            self._clock.tick(FRAMERATE)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     return False
@@ -231,7 +244,7 @@ class UI:
         Shows the enter password screen. Allows for the user to type a password in order to access later levels.
         :return: The password entered by the user
         """
-        self._screen.fill((0x15, 0x0D, 0x09))
+        self._screen.fill(BACKGROUND_COLOR)
         password = ""
         text = ["Enter the level password.",
                 "Leave empty to start with first level.",
@@ -242,7 +255,7 @@ class UI:
         self.write_text(text, x, y)
         pg.display.flip()
         while True:
-            self._clock.tick(60)
+            self._clock.tick(FRAMERATE)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     return password
@@ -256,7 +269,7 @@ class UI:
                     elif event.key == pg.K_RETURN:
                         return password
             text[3] = password
-            self._screen.fill((0x15, 0x0D, 0x09))
+            self._screen.fill(BACKGROUND_COLOR)
             self.write_text(text, x, y)
             pg.display.flip()
 
@@ -265,7 +278,7 @@ class UI:
         Shows the enter username screen. Allows for the user to type a name for the highscore list.
         :return: The name entered by the user
         """
-        self._screen.fill((0x15, 0x0D, 0x09))
+        self._screen.fill(BACKGROUND_COLOR)
         name = ""
         text = ["Enter your name for the highscore list.",
                 "Name: ",
@@ -275,7 +288,7 @@ class UI:
         self.write_text(text, x, y)
         pg.display.flip()
         while True:
-            self._clock.tick(60)
+            self._clock.tick(FRAMERATE)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     return name
@@ -289,7 +302,7 @@ class UI:
                     elif event.key == pg.K_RETURN:
                         return name
             text[2] = name
-            self._screen.fill((0x15, 0x0D, 0x09))
+            self._screen.fill(BACKGROUND_COLOR)
             self.write_text(text, x, y)
             pg.display.flip()
 
@@ -304,7 +317,7 @@ class UI:
         """
         font = pg.font.Font(None, 30)
         for i in range(0, len(text)):
-            text_image = font.render(text[i], True, (255, 255, 255))
+            text_image = font.render(text[i], True, WHITE)
             text_rect = text_image.get_rect()
             text_rect.x = x
             text_rect.y = y + i * BLOCK_SIZE
@@ -317,7 +330,7 @@ def get_game_marker():
     :return: The loaded image containing the marker with transparent background
     """
     marker = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "game_marker.png"))
-    marker.set_colorkey((0, 0, 0))
+    marker.set_colorkey(BLACK)
     return marker
 
 
@@ -327,5 +340,5 @@ def get_menu_marker():
     :return: The loaded image containing the marker with transparent background
     """
     marker = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "menu_marker.png"))
-    marker.set_colorkey((0, 0, 0))
+    marker.set_colorkey(BLACK)
     return marker

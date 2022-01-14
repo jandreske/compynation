@@ -16,10 +16,11 @@ def test_load():
         assert img in ui._menu_pics.keys()
     with pytest.raises(KeyError):
         var = ui._menu_pics[1077]
-    assert len(ui._tile_dict) == 14
-    for tile in range(100, 107):
+    assert len(ui._tile_dict) == ui_manager.MOVE_MAX_TILE + 1 - ui_manager.MOVE_MIN_TILE\
+           + ui_manager.BACK_MAX_TILE + 1 - ui_manager.BACK_MIN_TILE
+    for tile in range(ui_manager.BACK_MIN_TILE, ui_manager.BACK_MAX_TILE + 1):
         assert tile in ui._tile_dict.keys()
-    for tile in range(1, 8):
+    for tile in range(ui_manager.MOVE_MIN_TILE, ui_manager.MOVE_MAX_TILE + 1):
         assert tile in ui._tile_dict.keys()
     with pytest.raises(KeyError):
         var = ui._tile_dict[2317]

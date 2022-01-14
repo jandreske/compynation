@@ -1,7 +1,11 @@
+import math
+
+
 class LevelInfo:
     def __init__(self, file):
         """
         Loads the level overview from a file an fills various dictionaries to translate between ids, passwords and names
+        The level progress is tracked in here, along with scores
         :param file: the file to load the level information from
         """
         self._byPassword = {}
@@ -16,6 +20,10 @@ class LevelInfo:
                 self._byPassword[line[1]] = int(line[0])
                 self._byIndex[int(line[0])] = line[2]
                 self._times[int(line[0])] = int(line[3])
+        self._totalScore = 0
+        self._timeScore = 0
+        self._lastScore = 0
+        self._bonusScore = 0
 
     @property
     def first(self):
@@ -60,6 +68,43 @@ class LevelInfo:
             return 0
         self._index = self._index + 1
         return self._byIndex[self._index]
+
+    def set_scores(self, points, time_bonus):
+        """
+        sets the achieved points from a level playthrough
+        :param points: regular points
+        :param time_bonus: bonus points for time left
+        :return: None
+        """
+        self._totalScore = self._totalScore + points + time_bonus
+        self._timeScore = time_bonus
+        self._lastScore = points
+
+    def set_bonus(self, lives):
+        """
+        sets the bonus points for leftover lives when completing the game
+        :param lives: number of lives left
+        :return: None
+        """
+        points = lives * 2 * math.floor(self._totalScore / self._index)
+        self._totalScore = self._totalScore + points
+        self._bonusScore = points
+
+    @property
+    def total_score(self):
+        return self._totalScore
+
+    @property
+    def last_score(self):
+        return self._lastScore
+
+    @property
+    def time_score(self):
+        return self._timeScore
+
+    @property
+    def bonus_score(self):
+        return self._bonusScore
 
     def by_password(self, password):
         """

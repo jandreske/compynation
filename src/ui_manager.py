@@ -150,6 +150,13 @@ class UI:
                     self._screen.blit(tile, (j * BLOCK_SIZE, i * BLOCK_SIZE))
 
     def draw_game_menu(self, level, score, time_left):
+        """
+        Draws the right hand side game menu with lives, score, time and level info
+        :param level: which level is being played
+        :param score: the curretn total score
+        :param time_left: the time left during this level
+        :return: None
+        """
         image = self._game_menues[self._gm]
         self._screen.blit(image, (FIELD_X * BLOCK_SIZE, 0))
         self.write_text([str(time_left)], TIME_X, TIME_Y)
@@ -165,20 +172,19 @@ class UI:
         position = (position[0] * BLOCK_SIZE, position[1] * BLOCK_SIZE)
         self._screen.blit(self._images["game_marker"], position)
 
-    def show_success_screen(self, info, score, total):
+    def show_success_screen(self, info):
         """
         Shows a screen telling the user about the successfull level completion and the achieved points.
         Shows which level follows next and the password to access it directly.
         Waits for user key press before returning.
-        :param total: The aggregated score so far
-        :param score: points collected during the last level
-        :param info: the level info object containing index and password
+        :param info: the level info object containing index, password and points
         :return: True if the user pressed space to continue, False if pressed escape or exited the screen
         """
         self._screen.fill(BACKGROUND_COLOR)
         text = ["Yay, you made it!",
-                "Score achieved: " + str(score),
-                "Total points: " + str(total),
+                "Score achieved: " + str(info.last_score),
+                "Time bonus: " + str(info.time_score),
+                "Total points: " + str(info.total_score),
                 "Next Level: " + str(info.index),
                 "Password: " + info.password,
                 "Press space to continue"]
@@ -197,19 +203,18 @@ class UI:
                     elif event.key == pg.K_SPACE:
                         return True
 
-    def show_winning_screen(self, score, bonus, total):
+    def show_winning_screen(self, info):
         """
         Shows a screen telling the user he completed the game, and shows the achieved points
-        :param score: points from last level
-        :param bonus: extra points for remaining lives
-        :param total: total points achieved
+        :param info: the level info object containing score data
         :return: None
         """
         self._screen.fill(BACKGROUND_COLOR)
         text = ["Awesome, you completed the game!",
-                "Score achieved: " + str(score),
-                "Bonus points for remaining lives: " + str(bonus),
-                "Total points: " + str(total),
+                "Score achieved: " + str(info.last_score),
+                "Time bonus: " + str(info.time_score),
+                "Bonus points for remaining lives: " + str(info.bonus_score),
+                "Total points: " + str(info.total_score),
                 "Press space to continue"]
         x = BLOCK_SIZE * 4
         y = BLOCK_SIZE * 2

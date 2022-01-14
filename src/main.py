@@ -54,55 +54,45 @@ def play_game(ui):
     """
     info = LevelInfo(os.path.join(directories.LEVEL_DIRECTORY, "list"))
     password = ui.show_password_screen()
-    level = load_level(info.by_password(password))
+    info.by_password(password)
     lives = STARTING_LIVES
-    score = 0
     playing = True
     while playing:
-        time_budget = 0
         ui.set_game_menu(lives)
-        if ui.time:
-            time_budget = info.time
-        if play_level(ui, level, time_budget, info.index):
-            score = score + level.score
+        if play_level(ui, info):
             next_level = info.next
             if not next_level:
-                bonus = 0
                 if ui.lives:
-                    bonus = lives * 2 * math.floor(score / info.last)
-                score = score + bonus
-                ui.show_winning_screen(level.score, bonus, score)
+                    info.set_bonus(lives)
+                ui.show_winning_screen(info)
                 playing = False
             else:
-                if ui.show_success_screen(info, level.score, score):
-                    level = load_level(next_level)
-                else:
+                if not ui.show_success_screen(info):
                     playing = False
         else:
-            score = score + level.score
             if ui.lives:
                 lives = lives - 1
             playing = ui.show_failure_screen(lives)
-            if playing:
-                level = load_level(info.current)
-    check_highscores(ui, score)
+    check_highscores(ui, info.total_score)
 
 
-def play_level(ui, level, time_budget, lvl_id):
+def play_level(ui, info):
     """
     Loads a level and then runs the loop to play the game, allowing the user to make moves.
-    :param time_budget: the time available to play the level
+    :param info: the level info object tracking scores
     :param ui: the ui instance used for managing the interface
-    :param level: the level object containing the initial game state
     :return: True if the level was cleared, False otherwise
     """
+    level = load_level(info.current)
     if ui.random:
         level.randomize(MOVE_MIN_TILE, MOVE_MAX_TILE, BACK_MIN_TILE, BACK_MAX_TILE, BACK_DEFAULT_TILE)
     position = (0, 0)
-    time_left = time_budget
+    time_left = 0
+    if ui.time:
+        time_left = info.time
     ui.draw(level)
     ui.draw_marker(position)
-    ui.draw_game_menu(lvl_id, level.score, time_left)
+    ui.draw_game_menu(info.index, info.total_score + level.score, time_left)
     pg.display.flip()
     start = time.time()
     while True:
@@ -110,13 +100,13 @@ def play_level(ui, level, time_budget, lvl_id):
         new_position = position
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                if ui.time:
-                    level.add_score(time_left)
+                if ui.lives:
+                    info.set_scores(level.score, time_left)
                 return False
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
-                    if ui.time:
-                        level.add_score(time_left)
+                    if ui.lives:
+                        info.set_scores(level.score, time_left)
                     return False
                 elif event.key == pg.K_UP:
                     new_position = (new_position[0], max(0, new_position[1] - 1))
@@ -136,7 +126,7 @@ def play_level(ui, level, time_budget, lvl_id):
             position = new_position
             ui.draw(level)
             ui.draw_marker(position)
-            ui.draw_game_menu(lvl_id, level.score, time_left)
+            ui.draw_game_menu(info.index, info.total_score + level.score, time_left)
             pg.display.flip()
             while not level.stable:
                 # way lower framerate to make movements visible
@@ -144,16 +134,15 @@ def play_level(ui, level, time_budget, lvl_id):
                 level.stabilize()
                 ui.draw(level)
                 ui.draw_marker(position)
-                ui.draw_game_menu(lvl_id, level.score, time_left)
+                ui.draw_game_menu(info.index, info.total_score + level.score, time_left)
                 pg.display.flip()
             if level.solved:
-                if ui.time:
-                    level.add_score(time_left)
+                info.set_scores(level.score, time_left)
                 return True
-        new_time_left = time_budget - math.floor(time.time() - start)
-        if new_time_left < time_left:
+        new_time_left = info.time - math.floor(time.time() - start)
+        if ui.time and new_time_left < time_left:
             time_left = new_time_left
-            ui.draw_game_menu(lvl_id, level.score, time_left)
+            ui.draw_game_menu(info.index, info.total_score + level.score, time_left)
             pg.display.flip()
         if ui.time and time_left < 0:
             return False

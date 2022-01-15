@@ -56,17 +56,29 @@ def main():
 
 
 def start_menu_music():
+    """
+    Loads the menu music and starts playing it
+    :return: None
+    """
     pg.mixer.music.load(os.path.join(directories.MUSIC_DIRECTORY, "menu.mp3"))
     pg.mixer.music.play(-1)
 
 
 def start_level_music():
+    """
+    Loads a random song from the list of level songs and plays it
+    :return: None
+    """
     song = random.choice(SONGS)
     pg.mixer.music.load(os.path.join(directories.MUSIC_DIRECTORY, song))
     pg.mixer.music.play(-1)
 
 
 def stop_music():
+    """
+    Stops the background music playback
+    :return: None
+    """
     pg.mixer.music.stop()
 
 

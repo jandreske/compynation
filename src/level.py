@@ -114,7 +114,7 @@ class Level:
         :return: None
         """
         offset = random.randrange(min_move, max_move)
-        for y in range(FIELD_Y - 2, -1, -1):
+        for y in range(0, FIELD_Y):
             for x in range(0, FIELD_X):
                 if self._field[y][x] in range(min_move, max_move + 1):
                     self._field[y][x] = min_move + ((self._field[y][x] + offset) % (max_move - min_move + 1))

@@ -20,7 +20,7 @@ BACK_DEFAULT_TILE = 100
 BACK_MIN_TILE = 100
 BACK_MAX_TILE = 117
 # Dictionary for menu entries
-MENU_ENTRIES = {0: "play", 1: "info", 2: "lives", 3: "random", 4: "highscores", 5: "quit"}
+MENU_ENTRIES = {0: "play", 1: "info", 2: "password", 3: "lives", 4: "time", 5: "music", 6: "random", 7: "highscores"}
 # User interaction values
 FRAMERATE = 60
 STABILIZING_FRAMERATE = 4
@@ -108,14 +108,14 @@ class UI:
         IMAGES, TILE_DICT and MENU_PICS
         :return: None
         """
-        self._images["info"] = load_image(directories.GRAPHICS_DIRECTORY, "info.png")
-        self._images["logo"] = load_image(directories.GRAPHICS_DIRECTORY, "logo.png")
-        self._images["welcome"] = load_image(directories.GRAPHICS_DIRECTORY, "welcome.png")
+        self._images["info"] = load_image(directories.GENERAL_DIRECTORY, "info.png")
+        self._images["logo"] = load_image(directories.GENERAL_DIRECTORY, "logo.png")
+        self._images["welcome"] = load_image(directories.GENERAL_DIRECTORY, "welcome.png")
         self._images["game_marker"] = get_game_marker()
         self._images["menu_marker"] = get_menu_marker()
-        self._game_menues[1] = load_image(directories.GRAPHICS_DIRECTORY, "game_menu_1.png")
-        self._game_menues[2] = load_image(directories.GRAPHICS_DIRECTORY, "game_menu_2.png")
-        self._game_menues[3] = load_image(directories.GRAPHICS_DIRECTORY, "game_menu_3.png")
+        self._game_menues[1] = load_image(directories.GENERAL_DIRECTORY, "game_menu_1.png")
+        self._game_menues[2] = load_image(directories.GENERAL_DIRECTORY, "game_menu_2.png")
+        self._game_menues[3] = load_image(directories.GENERAL_DIRECTORY, "game_menu_3.png")
         for key, value in MENU_ENTRIES.items():
             self._menu_pics[key] = load_image(directories.BUTTONS_DIRECTORY, value + ".png")
         for tile in range(BACK_MIN_TILE, BACK_MAX_TILE + 1):
@@ -390,7 +390,7 @@ def get_game_marker():
     Loads the game marker image and sets the background to transparent
     :return: The loaded image containing the marker with transparent background
     """
-    marker = load_image(directories.GRAPHICS_DIRECTORY, "game_marker.png")
+    marker = load_image(directories.GENERAL_DIRECTORY, "game_marker.png")
     marker.set_colorkey(BLACK)
     return marker
 
@@ -400,7 +400,7 @@ def get_menu_marker():
     Loads the menu marker image and sets the background to transparent
     :return: The loaded image containing the marker with transparent background
     """
-    marker = load_image(directories.GRAPHICS_DIRECTORY, "menu_marker.png")
+    marker = load_image(directories.GENERAL_DIRECTORY, "menu_marker.png")
     marker.set_colorkey(BLACK)
     return marker
 

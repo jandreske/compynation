@@ -51,7 +51,9 @@ def main():
                     elif choice == "highscores":
                         ui.show_highscores(load_highscores())
                     elif choice == "play":
-                        play_game(ui)
+                        play_game(ui, False)
+                    elif choice == "password":
+                        play_game(ui, True)
                 ui.draw_menu()
 
 
@@ -82,17 +84,21 @@ def stop_music():
     pg.mixer.music.stop()
 
 
-def play_game(ui):
+def play_game(ui, pw_entry):
     """
     Organizes the sequence of levels to play. Loads the level info from a file, allows user password input
     and manages info screens in between solved or failed levels
+    :param pw_entry: whether the user should be asked for a password
     :param ui: The ui instance managing the interface
     :return: None
     """
     stop_music()
     info = LevelInfo(os.path.join(directories.LEVEL_DIRECTORY, "list"))
-    password = ui.show_password_screen()
-    info.by_password(password)
+    if pw_entry:
+        password = ui.show_password_screen()
+        info.by_password(password)
+    else:
+        info.first()
     lives = STARTING_LIVES
     playing = True
     while playing:

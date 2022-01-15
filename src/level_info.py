@@ -25,7 +25,6 @@ class LevelInfo:
         self._lastScore = 0
         self._bonusScore = 0
 
-    @property
     def first(self):
         """
         Starts a new run at the first level

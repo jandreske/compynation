@@ -100,6 +100,11 @@ class Level:
         return True
 
     def add_score(self, points):
+        """
+        Used to count up the points achieved so far
+        :param points: how many points to add
+        :return: None
+        """
         self._score = self._score + points
 
     def randomize(self, min_move, max_move, min_back, max_back, default_back):
@@ -126,6 +131,11 @@ class Level:
 
 
 def get_score(blocks_removed):
+    """
+    Returns the score for a certain number of removed blocks
+    :param blocks_removed: how many blocks were removed
+    :return: The number of points which should get awarded
+    """
     if blocks_removed < 2:
         raise ValueError("Invalid number of removed blocks: " + str(blocks_removed))
     if blocks_removed == 2:

@@ -6,18 +6,19 @@ import directories
 # Game size values
 BLOCK_SIZE = 64
 MENU_BLOCK_WIDTH = 4
-TIME_X = FIELD_X * BLOCK_SIZE + 110
+NUMBER_WIDTH = 34
+TIME_X = FIELD_X * BLOCK_SIZE + 100
 TIME_Y = 110
-SCORE_X = FIELD_X * BLOCK_SIZE + 75
+SCORE_X = FIELD_X * BLOCK_SIZE + 65
 SCORE_Y = 315
-LEVEL_X = FIELD_X * BLOCK_SIZE + 110
+LEVEL_X = FIELD_X * BLOCK_SIZE + 100
 LEVEL_Y = 475
 # Tile image values
 MOVE_MIN_TILE = 1
 MOVE_MAX_TILE = 15
 BACK_DEFAULT_TILE = 100
 BACK_MIN_TILE = 100
-BACK_MAX_TILE = 106
+BACK_MAX_TILE = 117
 # Dictionary for menu entries
 MENU_ENTRIES = {0: "play", 1: "info", 2: "lives", 3: "random", 4: "highscores", 5: "quit"}
 # User interaction values
@@ -32,13 +33,14 @@ BLACK = (0, 0, 0)
 class UI:
     def __init__(self):
         """
-            Initializes the UI, setting the icon, title and correct window size and loading images
+            Initializes the UI, setting the icon, title and correct window size and loads images
             """
         pg.init()
         self._menu_pics = {}
         self._images = {}
         self._tile_dict = {}
         self._game_menues = {}
+        self._numbers = {}
         self._gm = 3
         self.load_images()
         pg.display.set_icon(self._images["logo"])
@@ -106,20 +108,22 @@ class UI:
         IMAGES, TILE_DICT and MENU_PICS
         :return: None
         """
-        self._images["info"] = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "info.png"))
-        self._images["logo"] = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "logo.png"))
-        self._images["welcome"] = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "welcome.png"))
+        self._images["info"] = load_image(directories.GRAPHICS_DIRECTORY, "info.png")
+        self._images["logo"] = load_image(directories.GRAPHICS_DIRECTORY, "logo.png")
+        self._images["welcome"] = load_image(directories.GRAPHICS_DIRECTORY, "welcome.png")
         self._images["game_marker"] = get_game_marker()
         self._images["menu_marker"] = get_menu_marker()
-        self._game_menues[1] = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "game_menu_1.png"))
-        self._game_menues[2] = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "game_menu_2.png"))
-        self._game_menues[3] = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "game_menu_3.png"))
+        self._game_menues[1] = load_image(directories.GRAPHICS_DIRECTORY, "game_menu_1.png")
+        self._game_menues[2] = load_image(directories.GRAPHICS_DIRECTORY, "game_menu_2.png")
+        self._game_menues[3] = load_image(directories.GRAPHICS_DIRECTORY, "game_menu_3.png")
         for key, value in MENU_ENTRIES.items():
-            self._menu_pics[key] = pg.image.load(os.path.join(directories.BUTTONS_DIRECTORY, value + ".png"))
+            self._menu_pics[key] = load_image(directories.BUTTONS_DIRECTORY, value + ".png")
         for tile in range(BACK_MIN_TILE, BACK_MAX_TILE + 1):
-            self._tile_dict[tile] = pg.image.load(os.path.join(directories.TILES_DIRECTORY, str(tile) + ".gif"))
+            self._tile_dict[tile] = load_image(directories.TILES_DIRECTORY, str(tile) + ".gif")
         for tile in range(MOVE_MIN_TILE, MOVE_MAX_TILE + 1):
-            self._tile_dict[tile] = pg.image.load(os.path.join(directories.TILES_DIRECTORY, str(tile) + ".gif"))
+            self._tile_dict[tile] = load_image(directories.TILES_DIRECTORY, str(tile) + ".gif")
+        for number in range(0, 10):
+            self._numbers[number] = load_image(directories.NUMBERS_DIRECTORY, str(number) + ".gif")
 
     def draw_menu(self):
         """
@@ -167,9 +171,9 @@ class UI:
         """
         image = self._game_menues[self._gm]
         self._screen.blit(image, (FIELD_X * BLOCK_SIZE, 0))
-        self.write_text([str(time_left)], TIME_X, TIME_Y)
-        self.write_text([str(level)], LEVEL_X, LEVEL_Y)
-        self.write_text([str(score)], SCORE_X, SCORE_Y)
+        self.write_number(time_left, 2, TIME_X, TIME_Y)
+        self.write_number(level, 2, LEVEL_X, LEVEL_Y)
+        self.write_number(score, 4, SCORE_X, SCORE_Y)
 
     def draw_marker(self, position):
         """
@@ -365,13 +369,28 @@ class UI:
             text_rect.y = y + i * BLOCK_SIZE
             self._screen.blit(text_image, text_rect)
 
+    def write_number(self, number, length, x, y):
+        """
+        "writes" a number onto the screen using images for the digits
+        :param number: the number to display
+        :param length: number of digits to show (if the number is too big, lower digits are used)
+        :param x: x position to start dispalying at
+        :param y: y position to start displaying at
+        :return: None
+        """
+        for i in range(0, length):
+            digit = (number % (10**(length - i))) // (10**(length - i - 1))
+            image = self._numbers[digit]
+            position = (x + i * NUMBER_WIDTH, y)
+            self._screen.blit(image, position)
+
 
 def get_game_marker():
     """
     Loads the game marker image and sets the background to transparent
     :return: The loaded image containing the marker with transparent background
     """
-    marker = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "game_marker.png"))
+    marker = load_image(directories.GRAPHICS_DIRECTORY, "game_marker.png")
     marker.set_colorkey(BLACK)
     return marker
 
@@ -381,6 +400,16 @@ def get_menu_marker():
     Loads the menu marker image and sets the background to transparent
     :return: The loaded image containing the marker with transparent background
     """
-    marker = pg.image.load(os.path.join(directories.GRAPHICS_DIRECTORY, "menu_marker.png"))
+    marker = load_image(directories.GRAPHICS_DIRECTORY, "menu_marker.png")
     marker.set_colorkey(BLACK)
     return marker
+
+
+def load_image(directory, file):
+    """
+    Loads an image using the PyGame load function
+    :param directory: directory where the image is located
+    :param file: name of the image file
+    :return: The image object holding the loaded image
+    """
+    return pg.image.load(os.path.join(directory, file))

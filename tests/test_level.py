@@ -1,12 +1,12 @@
+import os
 import pytest
 import numpy
 import level
-
-LEVEL_DIRECTORY = "../src/levels/"
+from directories import LEVEL_DIRECTORY
 
 
 def test_load():
-    lvl = level.Level(LEVEL_DIRECTORY + "level_01")
+    lvl = level.Level(os.path.join(LEVEL_DIRECTORY, "level_01"))
     assert isinstance(lvl, level.Level)
     assert isinstance(lvl.field, numpy.ndarray)
     assert lvl.field.shape == (level.FIELD_Y, level.FIELD_X)
@@ -23,7 +23,7 @@ def test_wrong_dimensions():
 
 
 def test_move():
-    lvl = level.Level(LEVEL_DIRECTORY + "level_01")
+    lvl = level.Level(os.path.join(LEVEL_DIRECTORY, "level_01"))
     before_right = lvl.field[4][6]
     before_left = lvl.field[4][5]
     assert not lvl.move((0, 0), -1)
@@ -37,7 +37,7 @@ def test_move():
 
 
 def test_stabilize():
-    lvl = level.Level(LEVEL_DIRECTORY + "level_01")
+    lvl = level.Level(os.path.join(LEVEL_DIRECTORY, "level_01"))
     lvl.move((6, 5), -1)
     assert not lvl.stable
     assert not lvl.move((7, 4), -1)

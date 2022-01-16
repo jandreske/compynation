@@ -2,7 +2,7 @@ import pytest
 import numpy
 import level
 
-LEVEL_DIRECTORY = "../levels/"
+LEVEL_DIRECTORY = "../src/levels/"
 
 
 def test_load():

@@ -1,7 +1,7 @@
 import pytest
 import level_info
 
-LEVEL_DIRECTORY = "../levels/"
+LEVEL_DIRECTORY = "../src/levels/"
 
 
 def test_load():
@@ -18,16 +18,16 @@ def test_exceptions():
         val = info.next
     with pytest.raises(Exception):
         val = info.password
-    val = info.first
+    val = info.first()
     with pytest.raises(Exception):
-        val = info.first
+        val = info.first()
     with pytest.raises(Exception):
         val = info.by_password("")
 
 
 def test_sequence():
     info = level_info.LevelInfo(LEVEL_DIRECTORY + "list")
-    level = info.first
+    level = info.first()
     assert level == "level_01"
     assert info.index == 1
     assert info.password == ""

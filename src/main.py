@@ -29,13 +29,11 @@ def main():
                     ui.menu_up()
                 elif event.key == pg.K_DOWN:
                     ui.menu_down()
+                elif event.key == pg.K_RETURN:
+                    ui.flip_info()
                 elif event.key == pg.K_SPACE:
                     choice = ui.selected
-                    if choice == "quit":
-                        running = False
-                    elif choice == "info":
-                        ui.flip_info()
-                    elif choice == "lives":
+                    if choice == "lives":
                         ui.flip_lives()
                     elif choice == "time":
                         ui.flip_time()

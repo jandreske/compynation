@@ -10,7 +10,6 @@ class UI:
             Initializes the UI, setting the icon, title and correct window size and loads images
             """
         pg.init()
-        self._menu_pics = {}
         self._images = {}
         self._tile_dict = {}
         self._game_menues = {}
@@ -91,6 +90,7 @@ class UI:
         self._images["time"] = load_image(directories.MENU_DIRECTORY, "time.png")
         self._images["random"] = load_image(directories.MENU_DIRECTORY, "random.png")
         self._images["music"] = load_image(directories.MENU_DIRECTORY, "music.png")
+        self._images["menu_marker"] = load_image(directories.MENU_DIRECTORY, "marker.gif")
         self._game_menues[0] = load_image(directories.MENU_DIRECTORY, "game_menu_0.png")
         self._game_menues[1] = load_image(directories.MENU_DIRECTORY, "game_menu_1.png")
         self._game_menues[2] = load_image(directories.MENU_DIRECTORY, "game_menu_2.png")
@@ -122,8 +122,8 @@ class UI:
             self._screen.blit(self._images["random"], POS_RANDOM)
         if self._music:
             self._screen.blit(self._images["music"], POS_MUSIC)
-        #    if self._selected == entry:
-        #        self._screen.blit(self._images["menu_marker"], (posx, posy))
+        if self._selected == 0:
+            self._screen.blit(self._images["menu_marker"], SELECTED_POS_PLAY)
         pg.display.flip()
 
     def draw(self, level):

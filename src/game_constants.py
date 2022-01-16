@@ -26,6 +26,7 @@ POS_LIVES = (FIELD_X * BLOCK_SIZE, 372)
 POS_TIME = (FIELD_X * BLOCK_SIZE, 403)
 POS_RANDOM = (FIELD_X * BLOCK_SIZE, 435)
 POS_MUSIC = (FIELD_X * BLOCK_SIZE, 472)
+SELECTED_POS_PLAY = (FIELD_X * BLOCK_SIZE + 20, 65)
 # Tile image values
 MOVE_MIN_TILE = 1
 MOVE_MAX_TILE = 15
@@ -34,7 +35,7 @@ BACK_MIN_TILE = 100
 BACK_MAX_TILE = 117
 DEFAULT_BACKGROUND_PERCENTAGE = 0.7
 # Dictionary for menu entries
-MENU_ENTRIES = {0: "play", 1: "info", 2: "password", 3: "lives", 4: "time", 5: "music", 6: "random", 7: "highscores"}
+MENU_ENTRIES = {0: "play", 1: "password", 2: "highscores", 3: "lives", 4: "time", 5: "random", 6: "music"}
 # User interaction values
 FRAMERATE = 60
 STABILIZING_FRAMERATE = 4

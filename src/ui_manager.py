@@ -231,7 +231,7 @@ class UI:
         text_right = []
         for score in sorted(highscores, reverse=True):
             text_left.append(str(score) + " - " + highscores[score][0])
-            text_right.append("Level " + highscores[score][1])
+            text_right.append("Level " + str(highscores[score][1]))
         self.set_game_menu(0)
         self.draw_game_menu(0, 0, 0)
         self.display_info(text_left, text_right)

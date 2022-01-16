@@ -221,12 +221,12 @@ class UI:
         :return: None
         """
         self._screen.fill(BACKGROUND_COLOR)
-        text = ["Highscores"]
+        text_left = []
         for score in sorted(highscores, reverse=True):
-            text.append(str(score) + " - " + highscores[score])
-        x = BLOCK_SIZE * 4
-        y = BLOCK_SIZE * 2
-        self.write_text(text, x, y)
+            text_left.append(str(score) + " - " + highscores[score])
+        self.set_game_menu(0)
+        self.draw_game_menu(0, 0, 0)
+        self.display_info(text_left, [])
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -270,13 +270,13 @@ class UI:
         """
         self._screen.fill(BACKGROUND_COLOR)
         password = ""
-        text = ["Enter the level password.",
-                "Leave empty to start with first level.",
-                "Password: ",
-                password]
-        x = BLOCK_SIZE * 4
-        y = BLOCK_SIZE * 2
-        self.write_text(text, x, y)
+        text_left = ["Enter the level password.",
+                     "Leave empty for level 1.",
+                     "Password:"]
+        text_right = ["", "", password]
+        self.set_game_menu(STARTING_LIVES)
+        self.draw_game_menu(0, 0, 0)
+        self.display_info(text_left, text_right)
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -292,9 +292,8 @@ class UI:
                         password = password[:-1]
                     elif event.key == pg.K_RETURN:
                         return password
-            text[3] = password
-            self._screen.fill(BACKGROUND_COLOR)
-            self.write_text(text, x, y)
+            text_right[2] = password
+            self.display_info(text_left, text_right)
             pg.display.flip()
 
     def get_user_name(self):
@@ -307,9 +306,9 @@ class UI:
         text = ["Enter your name for the highscore list.",
                 "Name: ",
                 name]
-        x = BLOCK_SIZE * 4
-        y = BLOCK_SIZE * 2
-        self.write_text(text, x, y)
+        self.set_game_menu(0)
+        self.draw_game_menu(0, 0, 0)
+        self.display_info(text, [])
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -326,26 +325,8 @@ class UI:
                     elif event.key == pg.K_RETURN:
                         return name
             text[2] = name
-            self._screen.fill(BACKGROUND_COLOR)
-            self.write_text(text, x, y)
+            self.display_info(text, [])
             pg.display.flip()
-
-    def write_text(self, text, x, y):
-        """
-        Helper function to write multiple lines of text on the screen.
-        Each new lines starts one Block size lower.
-        :param text: List of text lines to render
-        :param x: x coordinate for upper left corner
-        :param y: y coordinate for upper left corner
-        :return: None
-        """
-        font = pg.font.Font(None, 30)
-        for i in range(0, len(text)):
-            text_image = font.render(text[i], True, WHITE)
-            text_rect = text_image.get_rect()
-            text_rect.x = x
-            text_rect.y = y + i * BLOCK_SIZE
-            self._screen.blit(text_image, text_rect)
 
     def display_info(self, text_left, text_right):
         """

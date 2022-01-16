@@ -99,6 +99,7 @@ def play_game(ui, pw_entry):
     else:
         info.first()
     lives = STARTING_LIVES
+    ui.set_game_menu(lives)
     playing = True
     while playing:
         if ui.music:

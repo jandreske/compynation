@@ -90,7 +90,7 @@ class UI:
         self._images["time"] = load_image(directories.MENU_DIRECTORY, "time.png")
         self._images["random"] = load_image(directories.MENU_DIRECTORY, "random.png")
         self._images["music"] = load_image(directories.MENU_DIRECTORY, "music.png")
-        self._images["menu_marker"] = load_image(directories.MENU_DIRECTORY, "marker.gif")
+        self._images["menu_marker"] = load_image(directories.MENU_DIRECTORY, "marker.png")
         self._game_menues[0] = load_image(directories.MENU_DIRECTORY, "game_menu_0.png")
         self._game_menues[1] = load_image(directories.MENU_DIRECTORY, "game_menu_1.png")
         self._game_menues[2] = load_image(directories.MENU_DIRECTORY, "game_menu_2.png")
@@ -122,8 +122,7 @@ class UI:
             self._screen.blit(self._images["random"], POS_RANDOM)
         if self._music:
             self._screen.blit(self._images["music"], POS_MUSIC)
-        if self._selected == 0:
-            self._screen.blit(self._images["menu_marker"], SELECTED_POS_PLAY)
+        self._screen.blit(self._images["menu_marker"], SELECTED_POS[self._selected])
         pg.display.flip()
 
     def draw(self, level):
@@ -183,7 +182,7 @@ class UI:
                       "Time bonus: " + str(info.time_score),
                       "Total points: " + str(info.total_score)]
         self.draw_game_menu(info.index - 1, info.total_score, info.time_score)
-        self.display_info(text_left, text_right)
+        self.display_info(text_left, [],  text_right)
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -212,7 +211,7 @@ class UI:
                       "Points for lives: " + str(info.bonus_score),
                       "Total points: " + str(info.total_score)]
         self.draw_game_menu(info.index, info.total_score, info.time_score)
-        self.display_info(text_left, text_right)
+        self.display_info(text_left, [],  text_right)
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -228,13 +227,15 @@ class UI:
         """
         self._screen.fill(BACKGROUND_COLOR)
         text_left = []
+        text_center = []
         text_right = []
         for score in sorted(highscores, reverse=True):
-            text_left.append(str(score) + " - " + highscores[score][0])
+            text_left.append(str(score))
+            text_center.append(str(highscores[score][0]))
             text_right.append("Level " + str(highscores[score][1]))
         self.set_game_menu(0)
         self.draw_game_menu(0, 0, 0)
-        self.display_info(text_left, text_right)
+        self.display_info(text_left, text_center, text_right)
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -258,7 +259,7 @@ class UI:
             text.append("Lives left: " + str(lives))
             text.append("Press space to try again.")
         self.draw_game_menu(info.index, info.total_score, info.time_score)
-        self.display_info(text, [])
+        self.display_info(text, [], [])
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -284,7 +285,7 @@ class UI:
         text_right = ["", "", password]
         self.set_game_menu(STARTING_LIVES)
         self.draw_game_menu(0, 0, 0)
-        self.display_info(text_left, text_right)
+        self.display_info(text_left, [],  text_right)
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -301,7 +302,7 @@ class UI:
                     elif event.key == pg.K_RETURN:
                         return password
             text_right[2] = password
-            self.display_info(text_left, text_right)
+            self.display_info(text_left, [], text_right)
             pg.display.flip()
 
     def get_user_name(self):
@@ -316,7 +317,7 @@ class UI:
                 name]
         self.set_game_menu(0)
         self.draw_game_menu(0, 0, 0)
-        self.display_info(text, [])
+        self.display_info(text, [], [])
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -333,15 +334,16 @@ class UI:
                     elif event.key == pg.K_RETURN:
                         return name
             text[2] = name
-            self.display_info(text, [])
+            self.display_info(text, [], [])
             pg.display.flip()
 
-    def display_info(self, text_left, text_right):
+    def display_info(self, text_left, text_center, text_right):
         """
         Show text placed nicely on the placeholder image.
         A maximum of PLACEHOLDER_TEXT_MAX lines is shown
-        :param text_right: list of text lines to display in the right section
         :param text_left: list of text lines to display in the left section
+        :param text_center: list of text lines to display in the center
+        :param text_right: list of text lines to display in the right section
         :return: None
         """
         self._screen.blit(self._images["placeholder"], (0, 0))
@@ -352,10 +354,16 @@ class UI:
             text_rect.x = PLACEHOLDER_TEXT_X
             text_rect.y = PLACEHOLDER_TEXT_Y + i * PLACEHOLDER_TEXT_LINE_HEIGHT
             self._screen.blit(text_image, text_rect)
+        for i in range(0, min(len(text_center), PLACEHOLDER_TEXT_MAX)):
+            text_image = font.render(text_center[i], True, WHITE)
+            text_rect = text_image.get_rect()
+            text_rect.x = PLACEHOLDER_TEXT_X + PLACEHOLDER_TEXT_X_OFFSET_CENTER
+            text_rect.y = PLACEHOLDER_TEXT_Y + i * PLACEHOLDER_TEXT_LINE_HEIGHT
+            self._screen.blit(text_image, text_rect)
         for i in range(0, min(len(text_right), PLACEHOLDER_TEXT_MAX)):
             text_image = font.render(text_right[i], True, WHITE)
             text_rect = text_image.get_rect()
-            text_rect.x = PLACEHOLDER_TEXT_X + PLACEHOLDER_TEXT_X_OFFSET
+            text_rect.x = PLACEHOLDER_TEXT_X + PLACEHOLDER_TEXT_X_OFFSET_RIGHT
             text_rect.y = PLACEHOLDER_TEXT_Y + i * PLACEHOLDER_TEXT_LINE_HEIGHT
             self._screen.blit(text_image, text_rect)
 

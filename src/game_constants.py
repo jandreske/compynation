@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 # File for constants used for the game and display
 STARTING_LIVES = 3
 SONGS = ["adventure.mp3", "arcade.mp3", "boss.mp3", "castle.mp3", "funny.mp3"]
@@ -27,7 +31,7 @@ POS_LIVES = (FIELD_X * BLOCK_SIZE, 372)
 POS_TIME = (FIELD_X * BLOCK_SIZE, 403)
 POS_RANDOM = (FIELD_X * BLOCK_SIZE, 435)
 POS_MUSIC = (FIELD_X * BLOCK_SIZE, 472)
-SELECTED_POS = {0: (FIELD_X * BLOCK_SIZE + 54, 70), 1: (FIELD_X * BLOCK_SIZE + 20, 134),
+SELECTED_POS = {0: (FIELD_X * BLOCK_SIZE + 54, 65), 1: (FIELD_X * BLOCK_SIZE + 20, 134),
                 2: (FIELD_X * BLOCK_SIZE + 7, 197), 3: (FIELD_X * BLOCK_SIZE + 32, 371),
                 4: (FIELD_X * BLOCK_SIZE + 29, 403), 5: (FIELD_X * BLOCK_SIZE + 29, 439),
                 6: (FIELD_X * BLOCK_SIZE + 29, 469)}

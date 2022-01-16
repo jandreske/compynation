@@ -13,12 +13,12 @@ which ones are optional extensions and which one will be dropped for the remake
 - [x] Create an architecture draft
 - [x] Separate the task into building blocks
 - [x] Prioritize the building blocks
-- [ ] Repeat for each block, in order:
+- [x] Repeat for each block, in order:
     * Code it
     * Write tests
     * Update documentation
-- [ ] Wrap everything together
-- [ ] Test that the entire thing runs in the reference VM as expected
+- [x] Wrap everything together
+- [x] Test that the entire thing runs in the reference VM as expected
 - [ ] Submit the result
 
 ### Questions

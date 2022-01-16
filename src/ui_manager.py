@@ -79,7 +79,6 @@ class UI:
     def load_images(self):
         """
         Loads all images required during the game and adds references to the dictionaries
-        IMAGES, TILE_DICT and MENU_PICS
         :return: None
         """
         self._images["info"] = load_image(directories.GENERAL_DIRECTORY, "info.png")
@@ -87,13 +86,15 @@ class UI:
         self._images["welcome"] = load_image(directories.GENERAL_DIRECTORY, "welcome.png")
         self._images["placeholder"] = load_image(directories.GENERAL_DIRECTORY, "placeholder.png")
         self._images["game_marker"] = get_game_marker()
-        self._images["menu_marker"] = get_menu_marker()
-        self._game_menues[0] = load_image(directories.GENERAL_DIRECTORY, "game_menu_0.png")
-        self._game_menues[1] = load_image(directories.GENERAL_DIRECTORY, "game_menu_1.png")
-        self._game_menues[2] = load_image(directories.GENERAL_DIRECTORY, "game_menu_2.png")
-        self._game_menues[3] = load_image(directories.GENERAL_DIRECTORY, "game_menu_3.png")
-        for key, value in MENU_ENTRIES.items():
-            self._menu_pics[key] = load_image(directories.BUTTONS_DIRECTORY, value + ".png")
+        self._images["sidebar_menu"] = load_image(directories.MENU_DIRECTORY, "sidebarmenu.png")
+        self._images["lives"] = load_image(directories.MENU_DIRECTORY, "lives.png")
+        self._images["time"] = load_image(directories.MENU_DIRECTORY, "time.png")
+        self._images["random"] = load_image(directories.MENU_DIRECTORY, "random.png")
+        self._images["music"] = load_image(directories.MENU_DIRECTORY, "music.png")
+        self._game_menues[0] = load_image(directories.MENU_DIRECTORY, "game_menu_0.png")
+        self._game_menues[1] = load_image(directories.MENU_DIRECTORY, "game_menu_1.png")
+        self._game_menues[2] = load_image(directories.MENU_DIRECTORY, "game_menu_2.png")
+        self._game_menues[3] = load_image(directories.MENU_DIRECTORY, "game_menu_3.png")
         for tile in range(BACK_MIN_TILE, BACK_MAX_TILE + 1):
             self._tile_dict[tile] = load_image(directories.TILES_DIRECTORY, str(tile) + ".gif")
         for tile in range(MOVE_MIN_TILE, MOVE_MAX_TILE + 1):
@@ -112,12 +113,17 @@ class UI:
             self._screen.blit(self._images["info"], (0, 0))
         else:
             self._screen.blit(self._images["welcome"], (0, 0))
-        for entry in MENU_ENTRIES.keys():
-            posx = (FIELD_X + 1) * BLOCK_SIZE
-            posy = (1 + (1.5 * entry)) * BLOCK_SIZE
-            self._screen.blit(self._menu_pics[entry], (posx, posy))
-            if self._selected == entry:
-                self._screen.blit(self._images["menu_marker"], (posx, posy))
+        self._screen.blit(self._images["sidebar_menu"], (FIELD_X * BLOCK_SIZE, 0))
+        if self._lives:
+            self._screen.blit(self._images["lives"], POS_LIVES)
+        if self._time:
+            self._screen.blit(self._images["time"], POS_TIME)
+        if self._random:
+            self._screen.blit(self._images["random"], POS_RANDOM)
+        if self._music:
+            self._screen.blit(self._images["music"], POS_MUSIC)
+        #    if self._selected == entry:
+        #        self._screen.blit(self._images["menu_marker"], (posx, posy))
         pg.display.flip()
 
     def draw(self, level):
@@ -222,11 +228,13 @@ class UI:
         """
         self._screen.fill(BACKGROUND_COLOR)
         text_left = []
+        text_right = []
         for score in sorted(highscores, reverse=True):
-            text_left.append(str(score) + " - " + highscores[score])
+            text_left.append(str(score) + " - " + highscores[score][0])
+            text_right.append("Level " + highscores[score][1])
         self.set_game_menu(0)
         self.draw_game_menu(0, 0, 0)
-        self.display_info(text_left, [])
+        self.display_info(text_left, text_right)
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)

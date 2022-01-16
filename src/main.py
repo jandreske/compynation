@@ -123,7 +123,7 @@ def play_game(ui, pw_entry):
             playing = ui.show_failure_screen(lives, info)
     if ui.music:
         start_menu_music()
-    check_highscores(ui, info.total_score)
+    check_highscores(ui, info.total_score, info.index)
 
 
 def play_level(ui, info):
@@ -198,9 +198,10 @@ def play_level(ui, info):
             return False
 
 
-def check_highscores(ui, score):
+def check_highscores(ui, score, level):
     """
     Vhecks whether the score is a new highscore, adds it if so and shows the highscores after
+    :param level: The maximum level the user achieved
     :param ui: UI manager to display highhscores
     :param score: score achieved by the user
     :return: None
@@ -208,7 +209,7 @@ def check_highscores(ui, score):
     highscores = load_highscores()
     if len(highscores) < 5 or score > min(highscores.keys()):
         name = ui.get_user_name()
-        highscores[score] = name
+        highscores[score] = (name, level)
         if len(highscores) > 5:
             del highscores[min(highscores.keys())]
         save_highscores(highscores)
@@ -226,10 +227,10 @@ def load_highscores():
             if line == "":
                 continue
             values = line.strip().split(',')
-            if len(values) != 2:
+            if len(values) != 3:
                 raise Exception("Highscore file broken, invalid number of fields.")
             try:
-                scores[int(values[0])] = values[1]
+                scores[int(values[0])] = (values[1], values[2])
             except Exception:
                 raise Exception("Highscore file broken, invalid line.")
     return scores
@@ -243,7 +244,7 @@ def save_highscores(highscores):
     """
     with open(os.path.join(directories.LEVEL_DIRECTORY, "highscores"), "w") as file:
         for score in highscores.keys():
-            file.write(str(score) + "," + highscores[score] + "\n")
+            file.write(str(score) + "," + highscores[score][0] + "," + str(highscores[score][1]) + "\n")
 
 
 def load_level(name):

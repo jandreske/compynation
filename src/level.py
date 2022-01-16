@@ -1,9 +1,6 @@
 import random
 import numpy as np
-
-FIELD_X = 14
-FIELD_Y = 10
-DEFAULT_BACKGROUND_PERCENTAGE = 0.7
+from game_constants import FIELD_X, FIELD_Y, DEFAULT_BACKGROUND_PERCENTAGE
 
 
 class Level:

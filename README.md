@@ -13,4 +13,7 @@ Module PyGame
 ### Adding / Modifying Levels
 
 ### License
-
+- font
+- music
+- code and images
+- pygame

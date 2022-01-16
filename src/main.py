@@ -5,8 +5,7 @@ from level import Level
 from level_info import LevelInfo
 from ui_manager import *
 import directories
-STARTING_LIVES = 3
-SONGS = ["adventure.mp3", "arcade.mp3", "boss.mp3", "castle.mp3", "funny.mp3"]
+from game_constants import *
 
 
 def main():
@@ -102,7 +101,6 @@ def play_game(ui, pw_entry):
     lives = STARTING_LIVES
     playing = True
     while playing:
-        ui.set_game_menu(lives)
         if ui.music:
             start_level_music()
         success = play_level(ui, info)
@@ -120,7 +118,8 @@ def play_game(ui, pw_entry):
         else:
             if ui.lives:
                 lives = lives - 1
-            playing = ui.show_failure_screen(lives)
+                ui.set_game_menu(lives)
+            playing = ui.show_failure_screen(lives, info)
     if ui.music:
         start_menu_music()
     check_highscores(ui, info.total_score)

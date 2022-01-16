@@ -1,33 +1,7 @@
-from level import FIELD_X, FIELD_Y
 import pygame as pg
 import os
 import directories
-
-# Game size values
-BLOCK_SIZE = 64
-MENU_BLOCK_WIDTH = 4
-NUMBER_WIDTH = 34
-TIME_X = FIELD_X * BLOCK_SIZE + 100
-TIME_Y = 110
-SCORE_X = FIELD_X * BLOCK_SIZE + 65
-SCORE_Y = 315
-LEVEL_X = FIELD_X * BLOCK_SIZE + 100
-LEVEL_Y = 475
-# Tile image values
-MOVE_MIN_TILE = 1
-MOVE_MAX_TILE = 15
-BACK_DEFAULT_TILE = 100
-BACK_MIN_TILE = 100
-BACK_MAX_TILE = 117
-# Dictionary for menu entries
-MENU_ENTRIES = {0: "play", 1: "info", 2: "password", 3: "lives", 4: "time", 5: "music", 6: "random", 7: "highscores"}
-# User interaction values
-FRAMERATE = 60
-STABILIZING_FRAMERATE = 4
-# Colors
-BACKGROUND_COLOR = (0x15, 0x0D, 0x09)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+from game_constants import *
 
 
 class UI:
@@ -111,8 +85,10 @@ class UI:
         self._images["info"] = load_image(directories.GENERAL_DIRECTORY, "info.png")
         self._images["logo"] = load_image(directories.GENERAL_DIRECTORY, "logo.png")
         self._images["welcome"] = load_image(directories.GENERAL_DIRECTORY, "welcome.png")
+        self._images["placeholder"] = load_image(directories.GENERAL_DIRECTORY, "placeholder.png")
         self._images["game_marker"] = get_game_marker()
         self._images["menu_marker"] = get_menu_marker()
+        self._game_menues[0] = load_image(directories.GENERAL_DIRECTORY, "game_menu_0.png")
         self._game_menues[1] = load_image(directories.GENERAL_DIRECTORY, "game_menu_1.png")
         self._game_menues[2] = load_image(directories.GENERAL_DIRECTORY, "game_menu_2.png")
         self._game_menues[3] = load_image(directories.GENERAL_DIRECTORY, "game_menu_3.png")
@@ -193,16 +169,15 @@ class UI:
         :return: True if the user pressed space to continue, False if pressed escape or exited the screen
         """
         self._screen.fill(BACKGROUND_COLOR)
-        text = ["Yay, you made it!",
-                "Score achieved: " + str(info.last_score),
-                "Time bonus: " + str(info.time_score),
-                "Total points: " + str(info.total_score),
-                "Next Level: " + str(info.index),
-                "Password: " + info.password,
-                "Press space to continue"]
-        x = BLOCK_SIZE * 4
-        y = BLOCK_SIZE * 2
-        self.write_text(text, x, y)
+        text_left = ["Yay, you made it!",
+                     "Next Level: " + str(info.index),
+                     "Password: " + info.password,
+                     "Press space to continue."]
+        text_right = ["Score achieved: " + str(info.last_score),
+                      "Time bonus: " + str(info.time_score),
+                      "Total points: " + str(info.total_score)]
+        self.draw_game_menu(info.index - 1, info.total_score, info.time_score)
+        self.display_info(text_left, text_right)
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -222,15 +197,16 @@ class UI:
         :return: None
         """
         self._screen.fill(BACKGROUND_COLOR)
-        text = ["Awesome, you completed the game!",
-                "Score achieved: " + str(info.last_score),
-                "Time bonus: " + str(info.time_score),
-                "Bonus points for remaining lives: " + str(info.bonus_score),
-                "Total points: " + str(info.total_score),
-                "Press space to continue"]
-        x = BLOCK_SIZE * 4
-        y = BLOCK_SIZE * 2
-        self.write_text(text, x, y)
+        text_left = ["Awesome, well done!",
+                     "You completed the game!",
+                     "Please eat less animals.",
+                     "Press space to continue."]
+        text_right = ["Score achieved: " + str(info.last_score),
+                      "Time bonus: " + str(info.time_score),
+                      "Points for lives: " + str(info.bonus_score),
+                      "Total points: " + str(info.total_score)]
+        self.draw_game_menu(info.index, info.total_score, info.time_score)
+        self.display_info(text_left, text_right)
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -258,21 +234,23 @@ class UI:
                 if event.type == pg.QUIT or event.type == pg.KEYDOWN:
                     return
 
-    def show_failure_screen(self, lives):
+    def show_failure_screen(self, lives, info):
         """
         Shows a screen informing the user a level attempt has failed
+        :param info: The game info object holding values for the game menu
         :param lives: number of lives the user has left
         :return: True if the user wants to and can continue playing, False otherwise
         """
         self._screen.fill(BACKGROUND_COLOR)
-        text = ["Oh no, that did not work out.",
-                "Lives left: " + str(lives),
-                "Press space to try again."]
+        text = ["Oh no, that did not work out."]
         if lives < 1:
-            text[2] = "Press space to return to the menu."
-        x = BLOCK_SIZE * 4
-        y = BLOCK_SIZE * 2
-        self.write_text(text, x, y)
+            text.append("Sadly, you have no lives left.")
+            text.append("Press space to return to the menu.")
+        else:
+            text.append("Lives left: " + str(lives))
+            text.append("Press space to try again.")
+        self.draw_game_menu(info.index, info.total_score, info.time_score)
+        self.display_info(text, [])
         pg.display.flip()
         while True:
             self._clock.tick(FRAMERATE)
@@ -369,6 +347,29 @@ class UI:
             text_rect.y = y + i * BLOCK_SIZE
             self._screen.blit(text_image, text_rect)
 
+    def display_info(self, text_left, text_right):
+        """
+        Show text placed nicely on the placeholder image.
+        A maximum of PLACEHOLDER_TEXT_MAX lines is shown
+        :param text_right: list of text lines to display in the right section
+        :param text_left: list of text lines to display in the left section
+        :return: None
+        """
+        self._screen.blit(self._images["placeholder"], (0, 0))
+        font = pg.font.Font(os.path.join(directories.GRAPHICS_DIRECTORY, "Minecraft.ttf"), PLACEHOLDER_TEXT_SIZE)
+        for i in range(0, min(len(text_left), PLACEHOLDER_TEXT_MAX)):
+            text_image = font.render(text_left[i], True, WHITE)
+            text_rect = text_image.get_rect()
+            text_rect.x = PLACEHOLDER_TEXT_X
+            text_rect.y = PLACEHOLDER_TEXT_Y + i * PLACEHOLDER_TEXT_LINE_HEIGHT
+            self._screen.blit(text_image, text_rect)
+        for i in range(0, min(len(text_right), PLACEHOLDER_TEXT_MAX)):
+            text_image = font.render(text_right[i], True, WHITE)
+            text_rect = text_image.get_rect()
+            text_rect.x = PLACEHOLDER_TEXT_X + PLACEHOLDER_TEXT_X_OFFSET
+            text_rect.y = PLACEHOLDER_TEXT_Y + i * PLACEHOLDER_TEXT_LINE_HEIGHT
+            self._screen.blit(text_image, text_rect)
+
     def write_number(self, number, length, x, y):
         """
         "writes" a number onto the screen using images for the digits
@@ -379,7 +380,7 @@ class UI:
         :return: None
         """
         for i in range(0, length):
-            digit = (number % (10**(length - i))) // (10**(length - i - 1))
+            digit = (number % (10 ** (length - i))) // (10 ** (length - i - 1))
             image = self._numbers[digit]
             position = (x + i * NUMBER_WIDTH, y)
             self._screen.blit(image, position)
